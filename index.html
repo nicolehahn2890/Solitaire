@@ -222,12 +222,19 @@
   .seg.boards { margin-top: 4px; }
   .msg { min-height: 20px; margin: -4px 0 10px; font: 400 13px/1.4 var(--font-ui); color: var(--text-muted); text-align: center; }
 
-  /* turned-wood board */
-  .board { position: relative; border-radius: 50%; flex: none; background: var(--surface-board-rim); box-shadow: var(--shadow-board), var(--inner-gloss); }
-  .board .face { position: absolute; inset: 5.5%; border-radius: 50%; background: var(--ground-wood); box-shadow: inset 0 2px 6px rgba(255,255,255,.4), inset 0 -8px 22px rgba(74,47,26,.35); overflow: hidden; }
-  .board .face::before { content: ''; position: absolute; inset: 0; background: url('assets/wood.jpg') center / 130% no-repeat; opacity: .45; mix-blend-mode: multiply; }
-  .board .ring { position: absolute; inset: 8.5%; border-radius: 50%; border: 1px solid rgba(74,47,26,.22); box-shadow: inset 0 1px 0 rgba(255,255,255,.34); pointer-events: none; }
+  /* turned-wood board: raised lip, sunken trough for captured stones, raised playing face */
+  .board { position: relative; border-radius: 50%; flex: none; background: radial-gradient(circle at 40% 30%, #b8905f 0%, var(--surface-board-rim) 70%, #7d5a3a 100%); box-shadow: var(--shadow-board), var(--inner-gloss); }
   .board .rimgrain { position: absolute; inset: 0; border-radius: 50%; background: url('assets/wood.jpg') center / 150% no-repeat; opacity: .35; mix-blend-mode: multiply; pointer-events: none; }
+  .board .lip { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; background: radial-gradient(circle closest-side, transparent 88%, rgba(255,245,225,.45) 89.5%, rgba(255,245,225,.12) 92%, rgba(74,47,26,.25) 98.5%, rgba(74,47,26,.45) 100%); }
+  .board .trough { position: absolute; inset: 5.5%; border-radius: 50%; background: radial-gradient(circle, #a97e52 0%, #8f6640 100%); box-shadow: inset 0 10px 18px rgba(50,30,12,.6), inset 0 -3px 6px rgba(255,235,205,.22), inset 0 0 0 1px rgba(50,30,12,.35); overflow: hidden; }
+  .board .trough::before { content: ''; position: absolute; inset: 0; background: url('assets/wood.jpg') center / 140% no-repeat; opacity: .4; mix-blend-mode: multiply; }
+  .board .face { position: absolute; inset: 13%; border-radius: 50%; background: var(--ground-wood); box-shadow: 0 6px 14px rgba(50,30,12,.5), 0 2px 3px rgba(50,30,12,.35), 0 -1px 0 rgba(255,245,225,.35), inset 0 2px 6px rgba(255,255,255,.45), inset 0 -6px 16px rgba(74,47,26,.3); overflow: hidden; }
+  .board .face::before { content: ''; position: absolute; inset: 0; background: url('assets/wood.jpg') center / 130% no-repeat; opacity: .45; mix-blend-mode: multiply; }
+  .board .ring { position: absolute; inset: 14.6%; border-radius: 50%; border: 1px solid rgba(74,47,26,.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.3); pointer-events: none; }
+  .tray { position: absolute; inset: 0; pointer-events: none; }
+  .tray .marble { pointer-events: none; transition: left .7s var(--ease-stone), top .7s var(--ease-stone); }
+  .marble.rolling .ball { animation: roll .75s var(--ease-stone); }
+  @keyframes roll { 0% { transform: rotate(0) scale(1); } 35% { transform: rotate(220deg) scale(1.1); } 100% { transform: rotate(560deg) scale(1); } }
   .grid { position: absolute; }
   .hole, .marble { position: absolute; width: var(--cell); height: var(--cell); left: calc(var(--c) * var(--cell)); top: calc(var(--r) * var(--cell)); display: flex; align-items: center; justify-content: center; }
   .hole::before { content: ''; width: 62%; height: 62%; border-radius: 50%; background: var(--slot-empty); box-shadow: inset 0 2px 4px rgba(74,47,26,.5), inset 0 -1px 0 rgba(255,255,255,.3); transition: background var(--dur-fast) var(--ease-stone), box-shadow var(--dur-fast) var(--ease-stone); }
@@ -243,7 +250,7 @@
   /* marble stones (Peg) */
   .marble { cursor: pointer; z-index: 2; transition: left var(--dur-slow) var(--ease-stone), top var(--dur-slow) var(--ease-stone); }
   .marble .ball {
-    width: 78%; height: 78%; border-radius: 50%; position: relative;
+    width: 84%; height: 84%; border-radius: 50%; position: relative;
     background: radial-gradient(46% 40% at 66% 78%, var(--rim) 0%, transparent 58%), radial-gradient(58% 58% at 36% 30%, var(--core) 0%, var(--body) 46%, var(--deep) 100%);
     box-shadow: var(--shadow-peg), inset 0 0 0 1px var(--ring), inset 0 -3px 6px rgba(0,0,0,.28), inset 0 2px 5px rgba(255,255,255,.45);
     transition: transform var(--dur-fast) var(--ease-lift), box-shadow var(--dur-fast) var(--ease-stone), opacity var(--dur-base);
@@ -382,7 +389,7 @@
         <button id="btnEn" class="active">Englisch · 33</button>
         <button id="btnEu">Europäisch · 37</button>
       </div>
-      <div class="board-area"><div class="board" id="board"><div class="rimgrain"></div><div class="face"></div><div class="ring"></div><div class="grid" id="grid"></div></div></div>
+      <div class="board-area"><div class="board" id="board"><div class="rimgrain"></div><div class="trough"></div><div class="lip"></div><div class="face"></div><div class="ring"></div><div class="grid" id="grid"></div><div class="tray" id="tray"></div></div></div>
       <div class="msg" id="msg"></div>
       <div class="panel hud">
         <div class="stat"><span class="label">Steine</span><span class="value" id="statLeft">0</span></div>
@@ -569,7 +576,8 @@ if (typeof importScripts === 'function') {
   // ---------- dom ----------
   const $ = id => document.getElementById(id);
   const screens = { home: $('home'), levels: $('levels'), game: $('game') };
-  const grid = $('grid'), boardEl = $('board');
+  const grid = $('grid'), boardEl = $('board'), tray = $('tray');
+  const TRAY_SLOTS = 36;
 
   // ---------- storage ----------
   const load = (k, d) => { try { const v = localStorage.getItem(STORE + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
@@ -722,29 +730,71 @@ if (typeof importScripts === 'function') {
   }
 
   // ---------- rendering ----------
-  function buildBoardEl(b, size) {
-    const el = document.createElement('div');
-    el.className = 'board';
-    el.innerHTML = '<div class="rimgrain"></div><div class="face"></div><div class="ring"></div><div class="grid"></div>';
-    layoutBoard(el, el.querySelector('.grid'), b, size);
-    return el;
-  }
   function layoutBoard(el, g, b, size) {
-    const span = Math.max(b.W, b.H) + 1.6;
-    const cell = size / span;
+    // the playing face is the inner 50% of the disc; the grid must fit inside it
+    const R = size / 2, cx = (b.W - 1) / 2, cy = (b.H - 1) / 2;
+    const maxDist = Math.max(...b.cells.map(([r, c]) => Math.hypot(c - cx, r - cy)));
+    const cell = Math.min(72, (0.74 * R) / (maxDist + 0.6));
     el.style.width = el.style.height = size + 'px';
     el.style.setProperty('--cell', cell + 'px');
+    const gx = R - cell * b.W / 2, gy = R - cell * b.H / 2;
     g.style.width = (cell * b.W) + 'px'; g.style.height = (cell * b.H) + 'px';
-    g.style.left = ((size - cell * b.W) / 2) + 'px'; g.style.top = ((size - cell * b.H) / 2) + 'px';
+    g.style.left = gx + 'px'; g.style.top = gy + 'px';
+    return { size, R, cell, gx, gy };
   }
   function layoutCell() {
     const b = game.board;
-    const maxW = Math.min(window.innerWidth - 76, 400);
-    const maxH = Math.max(220, window.innerHeight * 0.48);
-    const size = Math.floor(Math.min(maxW, maxH, 360));
-    layoutBoard(boardEl, grid, b, size);
+    const maxW = Math.min(window.innerWidth - 40, 440);
+    const maxH = Math.max(240, window.innerHeight * 0.52);
+    const size = Math.floor(Math.min(maxW, maxH, 420));
+    game.geo = layoutBoard(boardEl, grid, b, size);
   }
-  window.addEventListener('resize', () => { if (game && screens.game.classList.contains('active')) layoutCell(); });
+  window.addEventListener('resize', () => { if (game && screens.game.classList.contains('active')) { layoutCell(); renderTray(); } });
+
+  // ---------- tray (the trough around the face where captured stones rest) ----------
+  const cellCenter = i => { const [r, c] = game.board.cells[i]; const { gx, gy, cell } = game.geo; return { x: gx + (c + 0.5) * cell, y: gy + (r + 0.5) * cell }; };
+  const trayPos = slot => { const { R } = game.geo; const a = slot / TRAY_SLOTS * 2 * Math.PI; const rr = R * 0.815; return { x: R + rr * Math.cos(a), y: R + rr * Math.sin(a) }; };
+  const traySize = () => Math.min(game.geo.cell * 0.84, game.geo.R * 0.17);
+  function freeSlotNear(angle) {
+    const used = new Set(game.history.map(h => h.slot).filter(x => x !== undefined && x !== null));
+    const base = ((angle / (2 * Math.PI)) * TRAY_SLOTS + TRAY_SLOTS) % TRAY_SLOTS;
+    let best = null, bd = Infinity;
+    for (let k = 0; k < TRAY_SLOTS; k++) {
+      if (used.has(k)) continue;
+      let d = Math.abs(k - base); d = Math.min(d, TRAY_SLOTS - d);
+      if (d < bd) { bd = d; best = k; }
+    }
+    return best === null ? game.history.length % TRAY_SLOTS : best;
+  }
+  function trayStoneEl(stoneIdx, x, y, sz) {
+    const m = marbleEl(0, 0, stoneIdx);
+    m.style.width = m.style.height = sz + 'px';
+    m.style.left = (x - sz / 2) + 'px'; m.style.top = (y - sz / 2) + 'px';
+    return m;
+  }
+  function renderTray() {
+    if (!game) return;
+    tray.innerHTML = '';
+    const sz = traySize();
+    game.history.forEach(h => { if (h.slot === undefined || h.slot === null) return; const p = trayPos(h.slot); tray.appendChild(trayStoneEl(h.overColor, p.x, p.y, sz)); });
+  }
+  // roll a captured stone from its socket out into the trough
+  function rollOut(colorIdx, fromCell, slot) {
+    const sz = traySize(), a = cellCenter(fromCell), b = trayPos(slot);
+    const t = trayStoneEl(colorIdx, a.x, a.y, sz);
+    tray.appendChild(t);
+    requestAnimationFrame(() => requestAnimationFrame(() => { t.classList.add('rolling'); t.style.left = (b.x - sz / 2) + 'px'; t.style.top = (b.y - sz / 2) + 'px'; }));
+    setTimeout(() => t.classList.remove('rolling'), 800);
+  }
+  // roll the last captured stone back from the trough into its socket
+  function rollBack(h, done) {
+    const t = tray.lastElementChild;
+    if (!t || h.slot === undefined || h.slot === null) { done(true); return; }
+    const sz = traySize(), p = cellCenter(h.over);
+    t.classList.add('rolling');
+    t.style.left = (p.x - sz / 2) + 'px'; t.style.top = (p.y - sz / 2) + 'px';
+    setTimeout(() => { t.remove(); done(false); }, 620);
+  }
 
   function marbleEl(r, c, stoneIdx) {
     const m = document.createElement('div');
@@ -769,6 +819,7 @@ if (typeof importScripts === 'function') {
       holes.push(h); marbles.push(null);
     });
     b.cells.forEach((_, i) => { if (game.state[i]) createMarble(i, game.colors[i], false); });
+    renderTray();
     refreshUI();
   }
   function createMarble(i, stoneIdx, pop) {
@@ -839,9 +890,10 @@ if (typeof importScripts === 'function') {
   function doMove(mv) {
     const { from, over, to } = mv;
     const m = marbles[from], captured = marbles[over], overColor = game.colors[over];
+    const cc = cellCenter(over), slot = freeSlotNear(Math.atan2(cc.y - game.geo.R, cc.x - game.geo.R));
     game.state[from] = 0; game.state[over] = 0; game.state[to] = 1;
     game.colors[to] = game.colors[from]; game.colors[from] = -1; game.colors[over] = -1;
-    game.history.push({ from, over, to, overColor });
+    game.history.push({ from, over, to, overColor, slot });
     marbles[from] = null; marbles[over] = null; marbles[to] = m;
     m.dataset.i = to;
     if (hint && hint.length && hint[0][0] === from && hint[0][1] === over && hint[0][2] === to) hint.shift(); else hint = null;
@@ -849,10 +901,9 @@ if (typeof importScripts === 'function') {
     const [r, c] = game.board.cells[to];
     m.classList.add('jumping');
     m.style.setProperty('--r', r); m.style.setProperty('--c', c);
-    setTimeout(() => captured.classList.add('captured'), 180);
+    setTimeout(() => { if (captured.parentNode) captured.parentNode.removeChild(captured); rollOut(overColor, over, slot); }, 200);
     setTimeout(() => {
       m.classList.remove('jumping');
-      if (captured.parentNode) captured.parentNode.removeChild(captured);
       busy = false; refreshUI(); saveGame(); checkEnd();
     }, 440);
   }
@@ -869,9 +920,9 @@ if (typeof importScripts === 'function') {
     const [r, c] = game.board.cells[h.from];
     m.classList.add('jumping');
     m.style.setProperty('--r', r); m.style.setProperty('--c', c);
-    createMarble(h.over, h.overColor, true);
     busy = true; refreshUI();
-    setTimeout(() => { m.classList.remove('jumping'); busy = false; refreshUI(); saveGame(); }, 440);
+    rollBack(h, pop => createMarble(h.over, h.overColor, pop));
+    setTimeout(() => { m.classList.remove('jumping'); busy = false; refreshUI(); saveGame(); }, 660);
     hideOverlay($('endOverlay'));
     setMessage('');
   }
