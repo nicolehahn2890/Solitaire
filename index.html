@@ -129,7 +129,7 @@
   .tile { min-width: 0; padding: 10px 4px 8px; text-align: center; cursor: pointer; border-radius: 18px; transition: transform 0.12s, box-shadow 0.2s; position: relative; }
   .tile:hover { transform: translateY(-2px); }
   .tile .num { font-family: var(--head); font-weight: 600; font-size: 22px; line-height: 1.1; }
-  .tile .name { font-size: 10.5px; color: var(--ink-2); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
+  .tile .name { font-size: 10.5px; color: var(--ink-2); font-weight: 700; line-height: 1.15; min-height: 2.3em; padding: 0 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .tile .stars { font-size: 11px; letter-spacing: 1px; margin-top: 3px; color: var(--gold); min-height: 14px; }
   .tile .stars .off { color: rgba(120, 110, 160, 0.25); }
   .tile.locked { opacity: 0.55; cursor: not-allowed; }
