@@ -4,11 +4,21 @@ Das klassische Tisch-Solitaire (Steckspiel) als Browser-Spiel: ein gedrechseltes
 
 Live: https://nicolehahn2890.github.io/Solitaire/
 
-## Stand
+## Stand (September 2026)
 
-- 50 verifizierte Levels in fünf Welten, freies Spiel auf zwei Bretter, Solver-Hinweise, Sterne, Fortschritt, drei Themen.
+- 50 verifizierte Levels in fünf Welten, freies Spiel auf zwei Brettern, Solver-Hinweise, Sterne, Fortschritt, drei Themen.
 - Design nach dem Design-System „Rex Solitär“ (Claude Design), siehe Abschnitt Design.
 - Brett mit erhabenem Rand, versenkter Rinne und erhabener Spielfläche. Geschlagene Steine rollen aus der Fläche in die Rinne und bleiben dort liegen, beim Zurücknehmen rollen sie zurück.
+- Bedienung entwirrt: nur spielbare Steine sind auswählbar, keine Eingabesperre während Animationen, Bewegung über GPU-Transforms, auf Touch-Geräten ohne Glas-Blur.
+- Getestet per Playwright (Chromium, Desktop und iPhone-Profil mit Touch): alle Screens, Level 1, 2, 49, 50 per Hinweis durchgespielt, Rinne mit Rollen und Zurücknehmen, Reload, Themenwechsel.
+
+### Offene Ideen
+
+- PWA mit Manifest und Offline-Cache, Voraussetzung für App-Store-Verpackung (Capacitor).
+- Tägliche Herausforderung für Wiederkehrer.
+- Sound (Glas-Klacken beim Setzen, Rollen in der Rinne), dann auch die Einstellungen aus dem Design-Kit (Klang, Haptik).
+- Statistik-Screen aus dem Design-Kit, sobald es Zeit- und Spielzähler gibt.
+- Echte Marmorfotografie statt der prozeduralen Textur.
 
 ## Spielregeln
 
