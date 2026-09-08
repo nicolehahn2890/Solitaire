@@ -3,298 +3,247 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f6f4fb">
+<meta name="theme-color" content="#0e0f13">
 <meta name="description" content="Solitaire: das klassische Steckspiel mit Glaskugeln. 50 Levels, freies Spiel, Hinweise.">
-<title>Solitaire · Das Steckspiel</title>
+<title>Solitaire</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f6f4fb;
-    --ink: #2a2740;
-    --ink-2: #6b6885;
-    --ink-3: #9a97b2;
-    --glass: rgba(255, 255, 255, 0.58);
-    --glass-strong: rgba(255, 255, 255, 0.78);
-    --glass-border: rgba(255, 255, 255, 0.9);
-    --shadow: 0 12px 34px rgba(90, 80, 140, 0.13), 0 2px 6px rgba(90, 80, 140, 0.06);
-    --accent: #7b6cf6;
-    --accent-2: #f27bb1;
-    --gold: #f6b73c;
-    --mint: #45c9a5;
-    --radius: 24px;
-    --head: 'Fredoka', 'Nunito', system-ui, sans-serif;
-    --body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --bg: #0e0f13;
+    --ink: #ecebe6;
+    --ink-2: #a3a2ab;
+    --ink-3: #6b6a75;
+    --line: rgba(255, 255, 255, 0.10);
+    --line-strong: rgba(255, 255, 255, 0.18);
+    --glass: rgba(255, 255, 255, 0.045);
+    --glass-hover: rgba(255, 255, 255, 0.075);
+    --accent: #d6bd82;
+    --accent-dim: rgba(214, 189, 130, 0.35);
+    --ok: #9ad1b4;
+    --font: 'Manrope', 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
     --cell: 60px;
+    --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html, body { margin: 0; padding: 0; }
   body {
-    min-height: 100vh;
-    min-height: 100dvh;
-    font-family: var(--body);
-    color: var(--ink);
+    min-height: 100vh; min-height: 100dvh;
+    font-family: var(--font); font-weight: 400; color: var(--ink);
     background: var(--bg);
     overflow-x: hidden;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+    -webkit-font-smoothing: antialiased;
   }
-  /* soft colour blobs behind the glass */
-  .bg {
-    position: fixed; inset: 0; z-index: -1; overflow: hidden;
-    background: linear-gradient(160deg, #f9f6ff 0%, #f4f6fd 50%, #fdf5f7 100%);
-  }
-  .bg i {
-    position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.75;
-    animation: drift 24s ease-in-out infinite alternate;
-  }
-  .bg i:nth-child(1) { width: 52vmax; height: 52vmax; left: -14vmax; top: -18vmax; background: #dcd4ff; }
-  .bg i:nth-child(2) { width: 46vmax; height: 46vmax; right: -16vmax; top: 6vmax; background: #ffd9e6; animation-delay: -8s; }
-  .bg i:nth-child(3) { width: 44vmax; height: 44vmax; left: 8vmax; bottom: -20vmax; background: #cdf3ea; animation-delay: -15s; }
-  .bg i:nth-child(4) { width: 34vmax; height: 34vmax; right: 4vmax; bottom: -6vmax; background: #ffe9cf; animation-delay: -4s; }
-  @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(4vmax, 3vmax) scale(1.08); } }
+  /* ambient light behind the glass */
+  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--bg); }
+  .bg i { position: absolute; border-radius: 50%; filter: blur(60px); animation: drift 30s ease-in-out infinite alternate; }
+  .bg i:nth-child(1) { width: 70vmax; height: 70vmax; left: -25vmax; top: -30vmax; background: radial-gradient(circle, rgba(88, 96, 170, 0.55), rgba(88, 96, 170, 0) 70%); }
+  .bg i:nth-child(2) { width: 60vmax; height: 60vmax; right: -25vmax; top: 10vmax; background: radial-gradient(circle, rgba(140, 78, 110, 0.42), rgba(140, 78, 110, 0) 70%); animation-delay: -10s; }
+  .bg i:nth-child(3) { width: 55vmax; height: 55vmax; left: 5vmax; bottom: -30vmax; background: radial-gradient(circle, rgba(52, 110, 120, 0.40), rgba(52, 110, 120, 0) 70%); animation-delay: -20s; }
+  .bg i:nth-child(4) { width: 40vmax; height: 40vmax; right: 0; bottom: -10vmax; background: radial-gradient(circle, rgba(214, 189, 130, 0.14), rgba(214, 189, 130, 0) 70%); animation-delay: -5s; }
+  .bg::after { content: ''; position: absolute; inset: 0; background-image: var(--noise); opacity: 0.045; mix-blend-mode: screen; }
+  @keyframes drift { from { transform: translate(0, 0); } to { transform: translate(5vmax, 4vmax); } }
 
-  .screen { display: none; min-height: 100dvh; flex-direction: column; align-items: center; padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
+  .screen { display: none; min-height: 100dvh; flex-direction: column; align-items: center; padding: max(18px, env(safe-area-inset-top)) 18px max(26px, env(safe-area-inset-bottom)); }
   .screen.active { display: flex; }
-  .wrap { width: 100%; max-width: 560px; }
+  .wrap { width: 100%; max-width: 540px; }
 
-  /* ---------- glass primitives ---------- */
+  /* ---------- glass ---------- */
   .glass {
+    position: relative;
     background: var(--glass);
-    backdrop-filter: blur(22px) saturate(1.5);
-    -webkit-backdrop-filter: blur(22px) saturate(1.5);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow);
-    border-radius: var(--radius);
+    backdrop-filter: blur(28px) saturate(1.3);
+    -webkit-backdrop-filter: blur(28px) saturate(1.3);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.10);
   }
+  .glass::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background-image: var(--noise); opacity: 0.05; pointer-events: none; }
+
+  /* ---------- buttons ---------- */
   .btn {
-    appearance: none; border: 1px solid var(--glass-border);
-    background: var(--glass-strong);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    color: var(--ink); font-family: var(--body); font-weight: 800; font-size: 15px;
-    padding: 13px 20px; border-radius: 999px; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    box-shadow: 0 6px 18px rgba(90, 80, 140, 0.12);
-    transition: transform 0.12s, box-shadow 0.2s, opacity 0.2s, background 0.2s;
+    appearance: none; border: 1px solid var(--line-strong); background: transparent; color: var(--ink);
+    font-family: var(--font); font-weight: 500; font-size: 14px; letter-spacing: 0.02em;
+    padding: 12px 20px; border-radius: 999px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    transition: background 0.2s, border-color 0.2s, opacity 0.2s, transform 0.1s;
   }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(90, 80, 140, 0.16); }
-  .btn:active { transform: translateY(1px) scale(0.99); }
-  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-  .btn.primary {
-    background: linear-gradient(135deg, var(--accent) 0%, #a06cf0 55%, var(--accent-2) 100%);
-    color: #fff; border-color: transparent;
-    box-shadow: 0 10px 24px rgba(123, 108, 246, 0.35);
-  }
-  .btn.icon { width: 46px; height: 46px; padding: 0; border-radius: 50%; font-size: 20px; }
-  .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .btn:hover { background: var(--glass-hover); border-color: rgba(255, 255, 255, 0.3); }
+  .btn:active { transform: scale(0.985); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn.primary { background: var(--ink); color: #101115; border-color: var(--ink); }
+  .btn.primary:hover { background: #fff; }
+  .btn.quiet { border-color: transparent; color: var(--ink-2); }
+  .btn.quiet:hover { color: var(--ink); background: transparent; }
+  .btn.icon { width: 42px; height: 42px; padding: 0; border-radius: 50%; }
+  .btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
   .btn.thinking svg { animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  .eyebrow { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+
   /* ---------- top bar ---------- */
-  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; }
   .topbar .title { text-align: center; flex: 1; min-width: 0; }
-  .topbar .title h2 { font-family: var(--head); font-weight: 600; font-size: 22px; margin: 0; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .topbar .title p { margin: 1px 0 0; font-size: 13px; color: var(--ink-2); font-weight: 700; }
+  .topbar .title h2 { font-weight: 500; font-size: 17px; margin: 0; letter-spacing: 0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .topbar .title p { margin: 3px 0 0; }
 
   /* ---------- home ---------- */
   #home { justify-content: center; }
-  .hero { text-align: center; margin-bottom: 28px; }
-  .hero .logo { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
-  .hero .logo span { width: 26px; height: 26px; border-radius: 50%; display: block; box-shadow: 0 6px 12px rgba(0,0,0,0.12), inset -3px -4px 6px rgba(0,0,0,0.15), inset 3px 3px 6px rgba(255,255,255,0.7); }
-  .hero h1 { font-family: var(--head); font-weight: 700; font-size: clamp(42px, 9vw, 58px); margin: 0; letter-spacing: 0.02em; line-height: 1;
-    background: linear-gradient(120deg, #4e46a8, #7b6cf6 45%, #e0669d); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .hero p { margin: 8px 0 0; color: var(--ink-2); font-weight: 700; font-size: 16px; }
-  .menu { display: grid; gap: 14px; }
-  .card { padding: 20px 22px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: transform 0.15s, box-shadow 0.2s; text-align: left; }
-  .card:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(90, 80, 140, 0.18); }
-  .card:active { transform: scale(0.99); }
-  .card .ic { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; font-size: 26px; flex: none; }
-  .card .ic.a { background: linear-gradient(135deg, #e7e2ff, #d4cbff); }
-  .card .ic.b { background: linear-gradient(135deg, #d9f6ee, #c1f0e3); }
-  .card .ic.c { background: linear-gradient(135deg, #ffe7ef, #ffd3e2); }
-  .card h3 { font-family: var(--head); font-weight: 600; font-size: 21px; margin: 0 0 3px; }
-  .card p { margin: 0; font-size: 14px; color: var(--ink-2); font-weight: 700; }
-  .card .arrow { margin-left: auto; color: var(--ink-3); font-size: 22px; }
-  .progress { height: 8px; border-radius: 999px; background: rgba(120, 110, 180, 0.15); overflow: hidden; margin-top: 8px; }
-  .progress i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.4s; }
+  .hero { text-align: center; margin-bottom: 34px; }
+  .hero .marbles { display: flex; justify-content: center; gap: 14px; margin-bottom: 26px; }
+  .hero .marbles span { width: 22px; height: 22px; border-radius: 50%; display: block; box-shadow: 0 8px 14px rgba(0,0,0,0.45), inset -3px -4px 6px rgba(0,0,0,0.35), inset 3px 3px 5px rgba(255,255,255,0.6); }
+  .hero h1 { font-weight: 300; font-size: clamp(38px, 9vw, 50px); margin: 0; letter-spacing: 0.26em; text-transform: uppercase; line-height: 1; color: var(--ink); padding-left: 0.26em; }
+  .hero p { margin: 12px 0 0; }
+  .menu { display: grid; gap: 12px; }
+  .card { padding: 20px 22px; display: flex; align-items: center; gap: 18px; cursor: pointer; transition: background 0.2s, border-color 0.2s, transform 0.15s; text-align: left; }
+  .card:hover { background: var(--glass-hover); border-color: var(--line-strong); transform: translateY(-1px); }
+  .card:active { transform: scale(0.995); }
+  .card .num { font-weight: 300; font-size: 26px; color: var(--accent); width: 34px; flex: none; letter-spacing: 0.02em; }
+  .card h3 { font-weight: 500; font-size: 17px; margin: 0 0 3px; letter-spacing: 0.01em; }
+  .card p { margin: 0; font-size: 13px; color: var(--ink-2); }
+  .card .arrow { margin-left: auto; color: var(--ink-3); }
+  .card .arrow svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .progress { height: 2px; background: rgba(255, 255, 255, 0.1); margin-top: 10px; }
+  .progress i { display: block; height: 100%; background: var(--accent); transition: width 0.4s; }
 
   /* ---------- levels ---------- */
-  .world { margin-bottom: 18px; }
-  .world h3 { font-family: var(--head); font-weight: 600; font-size: 18px; margin: 0 0 10px 6px; display: flex; align-items: baseline; gap: 8px; }
-  .world h3 small { font-family: var(--body); font-size: 13px; color: var(--ink-2); font-weight: 700; }
-  .tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
-  .tile { min-width: 0; padding: 10px 4px 8px; text-align: center; cursor: pointer; border-radius: 18px; transition: transform 0.12s, box-shadow 0.2s; position: relative; }
-  .tile:hover { transform: translateY(-2px); }
-  .tile .num { font-family: var(--head); font-weight: 600; font-size: 22px; line-height: 1.1; }
-  .tile .name { font-size: 10.5px; color: var(--ink-2); font-weight: 700; line-height: 1.15; min-height: 2.3em; padding: 0 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .tile .stars { font-size: 11px; letter-spacing: 1px; margin-top: 3px; color: var(--gold); min-height: 14px; }
-  .tile .stars .off { color: rgba(120, 110, 160, 0.25); }
-  .tile.locked { opacity: 0.55; cursor: not-allowed; }
-  .tile.locked .num { color: var(--ink-3); }
-  .tile.locked:hover { transform: none; }
-  .tile.done { border-color: rgba(246, 183, 60, 0.6); }
+  .world { margin-bottom: 26px; }
+  .world h3 { font-weight: 500; font-size: 14px; margin: 0 0 12px 4px; display: flex; align-items: baseline; justify-content: space-between; letter-spacing: 0.04em; }
+  .world h3 small { font-size: 11px; color: var(--ink-3); letter-spacing: 0.12em; }
+  .tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .tile { min-width: 0; padding: 12px 4px 10px; text-align: center; cursor: pointer; border-radius: 14px; transition: background 0.2s, border-color 0.2s, transform 0.12s; }
+  .tile:hover { background: var(--glass-hover); border-color: var(--line-strong); transform: translateY(-1px); }
+  .tile .num { font-weight: 300; font-size: 24px; line-height: 1; color: var(--ink); }
+  .tile .name { font-size: 9.5px; color: var(--ink-3); letter-spacing: 0.04em; line-height: 1.2; min-height: 2.4em; margin-top: 6px; padding: 0 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tile .stars { font-size: 9px; letter-spacing: 2px; margin-top: 5px; color: var(--accent); min-height: 12px; }
+  .tile .stars .off { color: rgba(255, 255, 255, 0.14); }
+  .tile.locked { cursor: default; opacity: 0.45; }
+  .tile.locked:hover { background: var(--glass); border-color: var(--line); transform: none; }
+  .tile.locked .num { color: var(--ink-3); font-size: 18px; padding-top: 4px; }
+  .tile.done { border-color: var(--accent-dim); }
 
   /* ---------- game ---------- */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-  .stat { padding: 10px 8px; text-align: center; border-radius: 18px; }
-  .stat .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-2); font-weight: 800; }
-  .stat .value { font-family: var(--head); font-weight: 600; font-size: 26px; line-height: 1.1; margin-top: 2px; }
-  .stat .value small { font-family: var(--body); font-size: 12px; font-weight: 800; color: var(--ink-2); }
-  .stat .value .g { color: var(--gold); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .stat { padding: 11px 8px 10px; text-align: center; border-radius: 14px; }
+  .stat .value { font-weight: 300; font-size: 26px; line-height: 1.1; margin-top: 4px; letter-spacing: 0.02em; }
+  .stat .value small { font-size: 11px; color: var(--ink-2); letter-spacing: 0.06em; font-weight: 500; }
+  .stat .value .s { color: var(--accent); }
+  .stat .value .s.off { color: rgba(255, 255, 255, 0.14); }
 
-  .board-wrap { display: flex; justify-content: center; margin: 4px 0 16px; }
+  .board-wrap { display: flex; justify-content: center; margin: 6px 0 14px; }
   .board {
-    position: relative;
-    border-radius: 30px;
-    background: linear-gradient(160deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42));
-    backdrop-filter: blur(26px) saturate(1.6);
-    -webkit-backdrop-filter: blur(26px) saturate(1.6);
-    border: 1px solid rgba(255, 255, 255, 0.95);
+    position: relative; border-radius: 26px;
+    background: linear-gradient(150deg, rgba(255,255,255,0.10), rgba(255,255,255,0.035) 45%, rgba(255,255,255,0.06));
+    backdrop-filter: blur(34px) saturate(1.4);
+    -webkit-backdrop-filter: blur(34px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     box-shadow:
-      0 24px 50px rgba(90, 80, 140, 0.16),
-      0 4px 10px rgba(90, 80, 140, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 1),
-      inset 0 -1px 0 rgba(150, 140, 200, 0.12);
+      0 40px 90px rgba(0, 0, 0, 0.5),
+      0 6px 16px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.25);
   }
-  .board::before {
-    /* glossy sheen */
+  .board::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background-image: var(--noise); opacity: 0.07; }
+  .board::after {
     content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-    background: linear-gradient(115deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0) 38%, rgba(255,255,255,0) 62%, rgba(255,255,255,0.35) 100%);
+    background: linear-gradient(112deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.06) 100%);
   }
-  .grid { position: absolute; left: calc(var(--cell) * 0.5); top: calc(var(--cell) * 0.5); }
+  .grid { position: absolute; left: calc(var(--cell) * 0.5); top: calc(var(--cell) * 0.5); z-index: 1; }
   .hole, .marble {
     position: absolute; width: var(--cell); height: var(--cell);
     left: calc(var(--c) * var(--cell)); top: calc(var(--r) * var(--cell));
     display: flex; align-items: center; justify-content: center;
   }
   .hole::before {
-    content: ''; width: 56%; height: 56%; border-radius: 50%;
-    background: radial-gradient(circle at 50% 35%, #dcd8ee 0%, #cfcae6 60%, #c3bddd 100%);
+    content: ''; width: 54%; height: 54%; border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.30) 55%, rgba(0, 0, 0, 0.16) 100%);
     box-shadow:
-      inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(90, 80, 140, 0.28),
-      inset 0 calc(var(--cell) * -0.02) calc(var(--cell) * 0.03) rgba(255, 255, 255, 0.9),
-      0 1px 0 rgba(255, 255, 255, 0.95);
+      inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(0, 0, 0, 0.55),
+      0 1px 0 rgba(255, 255, 255, 0.14);
     transition: box-shadow 0.25s, transform 0.25s;
   }
-  .hole.goal::after {
-    content: ''; position: absolute; width: 74%; height: 74%; border-radius: 50%;
-    border: 2px dashed rgba(123, 108, 246, 0.55); pointer-events: none;
-  }
+  .hole.goal::after { content: ''; position: absolute; width: 72%; height: 72%; border-radius: 50%; border: 1px dashed rgba(214, 189, 130, 0.6); pointer-events: none; }
   .hole.target { cursor: pointer; }
   .hole.target::before {
-    box-shadow:
-      inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(90, 80, 140, 0.28),
-      0 0 0 3px rgba(123, 108, 246, 0.75),
-      0 0 calc(var(--cell) * 0.35) rgba(123, 108, 246, 0.45);
-    animation: pulse 1.1s ease-in-out infinite;
+    box-shadow: inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(236, 235, 230, 0.75), 0 0 calc(var(--cell) * 0.35) rgba(236, 235, 230, 0.35);
+    animation: pulse 1.2s ease-in-out infinite;
   }
   .hole.hint-to::before {
-    box-shadow:
-      inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(90, 80, 140, 0.28),
-      0 0 0 3px rgba(69, 201, 165, 0.9),
-      0 0 calc(var(--cell) * 0.35) rgba(69, 201, 165, 0.6);
-    animation: pulse 1s ease-in-out infinite;
+    box-shadow: inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(0, 0, 0, 0.55), 0 0 0 2px var(--accent), 0 0 calc(var(--cell) * 0.4) var(--accent-dim);
+    animation: pulse 1.1s ease-in-out infinite;
   }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 
   .marble { cursor: pointer; z-index: 2; transition: left 0.38s cubic-bezier(0.4, 0, 0.2, 1), top 0.38s cubic-bezier(0.4, 0, 0.2, 1); }
   .marble .ball {
-    width: 72%; height: 72%; border-radius: 50%; position: relative;
+    width: 70%; height: 70%; border-radius: 50%; position: relative;
     background:
-      radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.55) 8%, rgba(255,255,255,0) 30%),
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.5) 8%, rgba(255,255,255,0) 30%),
       radial-gradient(circle at 70% 78%, var(--m3) 0%, rgba(255,255,255,0) 45%),
       radial-gradient(circle at 50% 50%, var(--m1) 0%, var(--m2) 60%, var(--m3) 100%);
     box-shadow:
-      inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0,0,0,0.35),
-      inset calc(var(--cell) * 0.02) calc(var(--cell) * 0.03) calc(var(--cell) * 0.06) rgba(255,255,255,0.4),
-      0 calc(var(--cell) * 0.08) calc(var(--cell) * 0.12) rgba(60, 50, 110, 0.28),
-      0 calc(var(--cell) * 0.02) calc(var(--cell) * 0.03) rgba(60, 50, 110, 0.2);
+      inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0,0,0,0.45),
+      inset calc(var(--cell) * 0.02) calc(var(--cell) * 0.03) calc(var(--cell) * 0.06) rgba(255,255,255,0.35),
+      0 calc(var(--cell) * 0.1) calc(var(--cell) * 0.14) rgba(0, 0, 0, 0.5),
+      0 calc(var(--cell) * 0.02) calc(var(--cell) * 0.03) rgba(0, 0, 0, 0.4);
     transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
   }
-  .marble .ball::before {
-    content: ''; position: absolute; left: 20%; top: 12%; width: 30%; height: 20%; border-radius: 50%;
-    background: radial-gradient(ellipse at center, rgba(255,255,255,0.95), rgba(255,255,255,0) 70%); transform: rotate(-25deg);
-  }
-  .marble .ball::after {
-    content: ''; position: absolute; left: 18%; right: 18%; bottom: 6%; height: 22%; border-radius: 50%;
-    background: radial-gradient(ellipse at center, rgba(255,255,255,0.4), rgba(255,255,255,0) 70%);
-  }
+  .marble .ball::before { content: ''; position: absolute; left: 20%; top: 12%; width: 30%; height: 20%; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.95), rgba(255,255,255,0) 70%); transform: rotate(-25deg); }
+  .marble .ball::after { content: ''; position: absolute; left: 18%; right: 18%; bottom: 6%; height: 22%; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.35), rgba(255,255,255,0) 70%); }
   .marble:hover .ball { transform: translateY(-2px); }
   .marble.selected { z-index: 5; }
   .marble.selected .ball {
-    transform: translateY(calc(var(--cell) * -0.08)) scale(1.12);
-    box-shadow:
-      inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0,0,0,0.35),
-      0 0 0 3px rgba(123, 108, 246, 0.85),
-      0 calc(var(--cell) * 0.18) calc(var(--cell) * 0.22) rgba(60, 50, 110, 0.35);
+    transform: translateY(calc(var(--cell) * -0.08)) scale(1.1);
+    box-shadow: inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0,0,0,0.45), 0 0 0 2px rgba(236, 235, 230, 0.85), 0 calc(var(--cell) * 0.2) calc(var(--cell) * 0.24) rgba(0, 0, 0, 0.55);
   }
   .marble.hint-from .ball {
-    box-shadow:
-      inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0,0,0,0.35),
-      0 0 0 3px rgba(69, 201, 165, 0.9),
-      0 0 calc(var(--cell) * 0.35) rgba(69, 201, 165, 0.6),
-      0 calc(var(--cell) * 0.08) calc(var(--cell) * 0.12) rgba(60, 50, 110, 0.28);
-    animation: bob 1s ease-in-out infinite;
+    box-shadow: inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0,0,0,0.45), 0 0 0 2px var(--accent), 0 0 calc(var(--cell) * 0.4) var(--accent-dim), 0 calc(var(--cell) * 0.1) calc(var(--cell) * 0.14) rgba(0,0,0,0.5);
+    animation: bob 1.1s ease-in-out infinite;
   }
   @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(var(--cell) * -0.1)); } }
   .marble.jumping { z-index: 6; }
   .marble.jumping .ball { animation: hop 0.38s cubic-bezier(0.4, 0, 0.2, 1); }
-  @keyframes hop {
-    0% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(calc(var(--cell) * -0.35)) scale(1.22); box-shadow: 0 calc(var(--cell) * 0.4) calc(var(--cell) * 0.35) rgba(60,50,110,0.3); }
-    100% { transform: translateY(0) scale(1); }
-  }
+  @keyframes hop { 0% { transform: translateY(0) scale(1); } 50% { transform: translateY(calc(var(--cell) * -0.35)) scale(1.2); box-shadow: 0 calc(var(--cell) * 0.45) calc(var(--cell) * 0.4) rgba(0,0,0,0.5); } 100% { transform: translateY(0) scale(1); } }
   .marble.captured .ball { transform: scale(0.1); opacity: 0; }
   .marble.restore .ball { animation: popIn 0.3s ease-out; }
-  @keyframes popIn { 0% { transform: scale(0.1); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+  @keyframes popIn { 0% { transform: scale(0.1); opacity: 0; } 70% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
 
-  .controls { display: flex; gap: 10px; }
+  .controls { display: flex; gap: 8px; }
   .controls .btn { flex: 1 1 0; min-width: 0; padding-left: 10px; padding-right: 10px; }
   .switch { display: flex; padding: 4px; border-radius: 999px; margin-bottom: 14px; }
-  .switch button {
-    flex: 1; appearance: none; border: 0; background: transparent; color: var(--ink-2);
-    font-family: var(--body); font-weight: 800; font-size: 14px; padding: 9px 12px; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s;
-  }
-  .switch button.active { background: linear-gradient(135deg, var(--accent), #a06cf0); color: #fff; box-shadow: 0 6px 14px rgba(123,108,246,0.3); }
-  .msg { min-height: 24px; margin-top: 12px; font-size: 14px; color: var(--ink-2); text-align: center; font-weight: 700; }
-  .goalhint { font-size: 13px; color: var(--ink-2); text-align: center; font-weight: 700; margin: -6px 0 10px; }
+  .switch button { flex: 1; appearance: none; border: 0; background: transparent; color: var(--ink-2); font-family: var(--font); font-weight: 500; font-size: 13px; letter-spacing: 0.03em; padding: 9px 12px; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; position: relative; }
+  .switch button.active { background: var(--ink); color: #101115; }
+  .msg { min-height: 22px; margin-top: 12px; font-size: 13px; color: var(--ink-2); text-align: center; }
+  .goalhint { text-align: center; margin: -2px 0 12px; }
 
   /* ---------- overlay / modal ---------- */
-  .overlay {
-    position: fixed; inset: 0; background: rgba(70, 60, 120, 0.22);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50;
-    opacity: 0; pointer-events: none; transition: opacity 0.25s;
-  }
+  .overlay { position: fixed; inset: 0; background: rgba(8, 9, 12, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
   .overlay.show { opacity: 1; pointer-events: auto; }
-  .modal { width: min(92vw, 420px); padding: 28px 24px 22px; text-align: center; background: rgba(255,255,255,0.86); transform: translateY(14px) scale(0.98); transition: transform 0.25s; }
+  .modal { width: min(92vw, 400px); padding: 30px 26px 24px; text-align: center; background: rgba(22, 23, 30, 0.7); transform: translateY(14px); transition: transform 0.25s; }
   .overlay.show .modal { transform: none; }
-  .modal .emoji { font-size: 46px; line-height: 1; margin-bottom: 6px; }
-  .modal h2 { font-family: var(--head); font-weight: 600; font-size: 30px; margin: 0 0 6px; }
-  .modal p { margin: 0 0 18px; color: var(--ink-2); font-size: 15px; line-height: 1.5; font-weight: 700; }
-  .modal .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .modal .row .btn { flex: 1 1 120px; }
-  .bigstars { display: flex; justify-content: center; gap: 10px; margin: 6px 0 12px; }
-  .bigstars span { font-size: 42px; line-height: 1; color: rgba(120, 110, 160, 0.22); transform: scale(0.6); opacity: 0; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s, color 0.3s; }
+  .modal h2 { font-weight: 300; font-size: 30px; margin: 0 0 6px; letter-spacing: 0.06em; }
+  .modal p { margin: 0 0 22px; color: var(--ink-2); font-size: 14px; line-height: 1.55; }
+  .modal .row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .modal .row .btn { flex: 1 1 110px; }
+  .bigstars { display: flex; justify-content: center; gap: 14px; margin: 14px 0 10px; }
+  .bigstars span { font-size: 30px; line-height: 1; color: rgba(255, 255, 255, 0.12); transform: scale(0.6); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.3s, color 0.3s; }
   .overlay.show .bigstars span { transform: scale(1); opacity: 1; }
-  .bigstars span.on { color: var(--gold); filter: drop-shadow(0 4px 8px rgba(246, 183, 60, 0.45)); }
+  .bigstars span.on { color: var(--accent); text-shadow: 0 0 18px rgba(214, 189, 130, 0.5); }
   .bigstars span:nth-child(2) { transition-delay: 0.15s; }
   .bigstars span:nth-child(3) { transition-delay: 0.3s; }
-  .starlegend { display: flex; justify-content: center; gap: 12px; font-size: 12px; color: var(--ink-2); font-weight: 800; margin-bottom: 16px; flex-wrap: wrap; }
-  .starlegend span.on { color: var(--ink); }
-  .starlegend span::before { content: '★ '; color: var(--gold); }
-  .starlegend span:not(.on)::before { color: rgba(120, 110, 160, 0.3); }
+  .starlegend { display: flex; justify-content: center; gap: 14px; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 18px; flex-wrap: wrap; }
+  .starlegend span.on { color: var(--ink-2); }
   .modal.rules { text-align: left; }
-  .modal.rules h2 { text-align: center; }
-  .modal.rules ul { padding-left: 20px; margin: 0 0 16px; color: var(--ink-2); font-size: 14px; line-height: 1.55; font-weight: 600; }
-  .modal.rules li { margin-bottom: 6px; }
-  .modal.rules li b { color: var(--ink); font-weight: 800; }
+  .modal.rules h2 { text-align: center; font-size: 24px; margin-bottom: 14px; }
+  .modal.rules ul { padding-left: 18px; margin: 0 0 18px; color: var(--ink-2); font-size: 13.5px; line-height: 1.6; }
+  .modal.rules li { margin-bottom: 7px; }
+  .modal.rules li b { color: var(--ink); font-weight: 500; }
 
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
-
   @media (max-width: 380px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 </style>
 </head>
@@ -306,37 +255,36 @@
 <section class="screen active" id="home">
   <div class="wrap">
     <div class="hero">
-      <div class="logo">
-        <span style="background:radial-gradient(circle at 35% 30%,#fff,#7fd3ff 30%,#1d7fc9 80%)"></span>
-        <span style="background:radial-gradient(circle at 35% 30%,#fff,#ffd27a 30%,#e88b1c 80%)"></span>
-        <span style="background:radial-gradient(circle at 35% 30%,#fff,#ffc7f0 30%,#e05aa8 80%)"></span>
-        <span style="background:radial-gradient(circle at 35% 30%,#fff,#9df7c3 30%,#1fa66a 80%)"></span>
+      <div class="marbles">
+        <span style="background:radial-gradient(circle at 35% 30%,#fff,#8fdcff 30%,#1d5fa8 85%)"></span>
+        <span style="background:radial-gradient(circle at 35% 30%,#fff,#ffd98a 30%,#a05a10 85%)"></span>
+        <span style="background:radial-gradient(circle at 35% 30%,#fff,#e0c2ff 30%,#452078 85%)"></span>
+        <span style="background:radial-gradient(circle at 35% 30%,#fff,#a6f5cc 30%,#0e5a3a 85%)"></span>
       </div>
       <h1>Solitaire</h1>
-      <p>Das Steckspiel mit Glaskugeln</p>
+      <p class="eyebrow">Das Steckspiel mit Glaskugeln</p>
     </div>
     <div class="menu">
       <div class="glass card" id="cardContinue" hidden>
-        <div class="ic c">▶</div>
+        <div class="num">›</div>
         <div style="flex:1;min-width:0"><h3>Weiterspielen</h3><p id="continueText"></p></div>
-        <div class="arrow">›</div>
       </div>
       <div class="glass card" id="cardLevels">
-        <div class="ic a">🧩</div>
+        <div class="num">01</div>
         <div style="flex:1;min-width:0">
           <h3>Levels</h3>
-          <p id="levelsProgressText">50 Puzzles in 5 Welten</p>
+          <p id="levelsProgressText">50 Puzzles in fünf Welten</p>
           <div class="progress"><i id="levelsProgressBar" style="width:0%"></i></div>
         </div>
-        <div class="arrow">›</div>
+        <div class="arrow"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
       </div>
       <div class="glass card" id="cardFree">
-        <div class="ic b">🔮</div>
+        <div class="num">02</div>
         <div style="flex:1;min-width:0"><h3>Freies Spiel</h3><p>Englisches und europäisches Brett</p></div>
-        <div class="arrow">›</div>
+        <div class="arrow"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
       </div>
     </div>
-    <div style="text-align:center;margin-top:22px"><button class="btn" id="homeRules">Spielregeln</button></div>
+    <div style="text-align:center;margin-top:26px"><button class="btn quiet" id="homeRules">Spielregeln</button></div>
   </div>
 </section>
 
@@ -344,9 +292,9 @@
 <section class="screen" id="levels">
   <div class="wrap">
     <div class="topbar">
-      <button class="btn icon" id="levelsBack" aria-label="Zurück">‹</button>
-      <div class="title"><h2>Levels</h2><p id="levelsStars"></p></div>
-      <button class="btn icon" id="levelsRules" aria-label="Spielregeln">?</button>
+      <button class="btn icon" id="levelsBack" aria-label="Zurück"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div class="title"><h2>Levels</h2><p class="eyebrow" id="levelsStars"></p></div>
+      <button class="btn icon" id="levelsRules" aria-label="Spielregeln"><svg viewBox="0 0 24 24"><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
     </div>
     <div id="worlds"></div>
   </div>
@@ -356,21 +304,21 @@
 <section class="screen" id="game">
   <div class="wrap">
     <div class="topbar">
-      <button class="btn icon" id="gameBack" aria-label="Zurück">‹</button>
-      <div class="title"><h2 id="gameTitle">Level</h2><p id="gameSub"></p></div>
-      <button class="btn icon" id="gameRules" aria-label="Spielregeln">?</button>
+      <button class="btn icon" id="gameBack" aria-label="Zurück"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div class="title"><h2 id="gameTitle">Level</h2><p class="eyebrow" id="gameSub"></p></div>
+      <button class="btn icon" id="gameRules" aria-label="Spielregeln"><svg viewBox="0 0 24 24"><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
     </div>
     <div class="glass switch" id="boardSwitch" hidden>
       <button id="btnEn" class="active">Englisch · 33</button>
       <button id="btnEu">Europäisch · 37</button>
     </div>
     <div class="stats">
-      <div class="glass stat"><div class="label">Züge</div><div class="value" id="statMoves">0</div></div>
-      <div class="glass stat"><div class="label">Kugeln</div><div class="value" id="statLeft">0</div></div>
-      <div class="glass stat"><div class="label" id="statThirdLabel">Beste</div><div class="value" id="statThird">–</div></div>
+      <div class="glass stat"><div class="eyebrow">Züge</div><div class="value" id="statMoves">0</div></div>
+      <div class="glass stat"><div class="eyebrow">Kugeln</div><div class="value" id="statLeft">0</div></div>
+      <div class="glass stat"><div class="eyebrow" id="statThirdLabel">Beste</div><div class="value" id="statThird">–</div></div>
     </div>
     <div class="board-wrap"><div class="board" id="board"><div class="grid" id="grid"></div></div></div>
-    <div class="goalhint" id="goalHint"></div>
+    <div class="goalhint eyebrow" id="goalHint"></div>
     <div class="controls">
       <button class="btn" id="undoBtn" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Zurück</button>
       <button class="btn" id="hintBtn"><svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>Hinweis</button>
@@ -383,8 +331,7 @@
 <!-- ================= MODALS ================= -->
 <div class="overlay" id="endOverlay">
   <div class="glass modal">
-    <div class="emoji" id="endEmoji">🏆</div>
-    <h2 id="endTitle">Geschafft!</h2>
+    <h2 id="endTitle">Gelöst</h2>
     <div class="bigstars" id="bigStars"><span>★</span><span>★</span><span>★</span></div>
     <div class="starlegend" id="starLegend"><span>Gelöst</span><span>Zielfeld</span><span>Ohne Hinweis</span></div>
     <p id="endText"></p>
@@ -393,7 +340,7 @@
       <button class="btn" id="endRetry">Nochmal</button>
       <button class="btn primary" id="endNext">Weiter</button>
     </div>
-    <div style="margin-top:12px"><button class="btn" id="endLevels" style="background:transparent;box-shadow:none;border-color:transparent;color:var(--ink-2)">Zur Übersicht</button></div>
+    <div style="margin-top:10px"><button class="btn quiet" id="endLevels">Zur Übersicht</button></div>
   </div>
 </div>
 
@@ -401,13 +348,13 @@
   <div class="glass modal rules">
     <h2>Spielregeln</h2>
     <ul>
-      <li><b>Zug:</b> Tippe eine Kugel an, dann eine leuchtende Mulde. Die Kugel springt waagerecht oder senkrecht über eine Nachbarkugel in die freie Mulde dahinter. Die übersprungene Kugel wird entfernt.</li>
+      <li><b>Zug:</b> Kugel antippen, dann eine leuchtende Mulde. Die Kugel springt waagerecht oder senkrecht über eine Nachbarkugel in die freie Mulde dahinter. Die übersprungene Kugel wird entfernt.</li>
       <li><b>Ziel:</b> Am Ende bleibt nur eine Kugel übrig. Landet sie im gestrichelt markierten Zielfeld, ist das Level perfekt gelöst.</li>
-      <li><b>Sterne:</b> Einer fürs Lösen, einer fürs Zielfeld, einer wenn du ohne Hinweis auskommst. Ein Stern schaltet das nächste Level frei.</li>
-      <li><b>Hinweis:</b> Der Solver sucht eine komplette Lösung aus der aktuellen Stellung und zeigt dir den nächsten Zug grün an. Nicht jede Stellung ist noch lösbar, dann musst du Züge zurücknehmen.</li>
+      <li><b>Sterne:</b> Einer fürs Lösen, einer fürs Zielfeld, einer ohne Hinweis. Ein Stern schaltet das nächste Level frei.</li>
+      <li><b>Hinweis:</b> Der Solver sucht eine komplette Lösung aus der aktuellen Stellung und zeigt den nächsten Zug. Nicht jede Stellung ist noch lösbar, dann hilft nur zurücknehmen.</li>
       <li><b>Freies Spiel:</b> Die beiden klassischen Bretter. Das europäische Brett ist mit leerer Mitte beweisbar unlösbar, deshalb startet es oben links und endet oben rechts.</li>
     </ul>
-    <div class="row"><button class="btn primary" id="rulesClose" style="width:100%">Alles klar</button></div>
+    <div class="row"><button class="btn primary" id="rulesClose" style="width:100%">Schließen</button></div>
   </div>
 </div>
 
@@ -507,25 +454,25 @@ if (typeof importScripts === 'function') {
   const LEVELS = JSON.parse(document.getElementById('levelsData').textContent.replace(/\/\*LEVELS-(START|END)\*\//g, ''));
   const WORLDS = ['Erste Schritte', 'Formen', 'Klassiker', 'Fortgeschritten', 'Meister'];
   const FREE = {
-    en: { name: 'Englisch', sub: '33 Mulden · Ziel: Mitte', rows: ['  ooo  ', '  ooo  ', 'ooooooo', 'oooxooo', 'ooooooo', '  ooo  ', '  ooo  '],
+    en: { name: 'Englisch', sub: '33 Mulden · Ziel Mitte', rows: ['  ooo  ', '  ooo  ', 'ooooooo', 'oooxooo', 'ooooooo', '  ooo  ', '  ooo  '],
           goals: [{ goalRC: [3, 3], cap: 2500000 }, { goalRC: null, cap: 2500000 }], goalLabel: 'Mitte' },
-    eu: { name: 'Europäisch', sub: '37 Mulden · Ziel: oben rechts', rows: ['  .oX  ', ' ooooo ', 'ooooooo', 'ooooooo', 'ooooooo', ' ooooo ', '  ooo  '],
+    eu: { name: 'Europäisch', sub: '37 Mulden · Ziel oben rechts', rows: ['  .oX  ', ' ooooo ', 'ooooooo', 'ooooooo', 'ooooooo', ' ooooo ', '  ooo  '],
           goals: [{ goalRC: [0, 4], cap: 1500000 }, { goalRC: null, cap: 3000000 }], goalLabel: 'Ziel' }
   };
   const PALETTE = [
-    { m1: '#8fdcff', m2: '#2b8fd8', m3: '#0d4a8a' },
-    { m1: '#a6f5cc', m2: '#25b377', m3: '#0e5a3a' },
-    { m1: '#ffd98a', m2: '#f09a2a', m3: '#8a4a0a' },
-    { m1: '#ffa6b3', m2: '#e2394f', m3: '#7a1424' },
-    { m1: '#c2f2ff', m2: '#38c0d2', m3: '#105a68' },
-    { m1: '#e0c2ff', m2: '#9257db', m3: '#452078' },
-    { m1: '#ffffff', m2: '#cfdbe6', m3: '#7d90a0' },
-    { m1: '#ffcdf2', m2: '#e964b2', m3: '#84255f' }
+    { m1: '#8fdcff', m2: '#2b8fd8', m3: '#0d3f78' },
+    { m1: '#a6f5cc', m2: '#25b377', m3: '#0c4a30' },
+    { m1: '#ffd98a', m2: '#f09a2a', m3: '#7a3f08' },
+    { m1: '#ffa6b3', m2: '#e2394f', m3: '#6b1020' },
+    { m1: '#c2f2ff', m2: '#38c0d2', m3: '#0d4a56' },
+    { m1: '#e0c2ff', m2: '#9257db', m3: '#3a1a68' },
+    { m1: '#ffffff', m2: '#cfdbe6', m3: '#6c8090' },
+    { m1: '#ffcdf2', m2: '#e964b2', m3: '#701f50' }
   ];
   const STORE = 'solitaire2.';
 
   // ---------- state ----------
-  let game = null;       // { mode:'level'|'free', level, boardType, rows, board, state, colors, history, hintUsed, goal }
+  let game = null;
   let selected = null, busy = false, hint = null, hintSeq = 0;
   let solverWorker = null, solverInline = null;
   let holes = [], marbles = [];
@@ -538,7 +485,7 @@ if (typeof importScripts === 'function') {
   // ---------- storage ----------
   const load = (k, d) => { try { const v = localStorage.getItem(STORE + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const save = (k, v) => { try { localStorage.setItem(STORE + k, JSON.stringify(v)); } catch (e) { /* ignore */ } };
-  const progress = load('progress', {});     // { levelIndex: stars }
+  const progress = load('progress', {});
   const starsOf = i => progress[i] || 0;
   const isUnlocked = i => i === 0 || starsOf(i - 1) > 0;
 
@@ -574,7 +521,7 @@ if (typeof importScripts === 'function') {
   function renderHome() {
     const solved = LEVELS.filter((_, i) => starsOf(i) > 0).length;
     const stars = LEVELS.reduce((a, _, i) => a + starsOf(i), 0);
-    $('levelsProgressText').textContent = solved + ' von ' + LEVELS.length + ' gelöst · ' + stars + ' ★';
+    $('levelsProgressText').textContent = solved === 0 ? LEVELS.length + ' Puzzles in fünf Welten' : solved + ' von ' + LEVELS.length + ' gelöst · ' + stars + ' Sterne';
     $('levelsProgressBar').style.width = (100 * solved / LEVELS.length) + '%';
     const snap = load('game', null);
     const card = $('cardContinue');
@@ -594,13 +541,13 @@ if (typeof importScripts === 'function') {
       const done = idxs.filter(i => starsOf(i) > 0).length;
       const sec = document.createElement('div');
       sec.className = 'world';
-      sec.innerHTML = '<h3>' + wname + ' <small>' + done + '/' + idxs.length + '</small></h3><div class="tiles"></div>';
+      sec.innerHTML = '<h3><span>' + wname + '</span><small>' + done + ' / ' + idxs.length + '</small></h3><div class="tiles"></div>';
       const tiles = sec.querySelector('.tiles');
       idxs.forEach(i => {
         const s = starsOf(i), unlocked = isUnlocked(i);
         const t = document.createElement('div');
         t.className = 'glass tile' + (unlocked ? '' : ' locked') + (s > 0 ? ' done' : '');
-        t.innerHTML = '<div class="num">' + (unlocked ? (i + 1) : '🔒') + '</div><div class="name">' + LEVELS[i].n + '</div>' +
+        t.innerHTML = '<div class="num">' + (unlocked ? (i + 1) : '·') + '</div><div class="name">' + LEVELS[i].n + '</div>' +
           '<div class="stars">' + [1, 2, 3].map(k => '<span class="' + (k <= s ? '' : 'off') + '">★</span>').join('') + '</div>';
         if (unlocked) t.addEventListener('click', () => startLevel(i));
         tiles.appendChild(t);
@@ -610,13 +557,8 @@ if (typeof importScripts === 'function') {
   }
 
   // ---------- game setup ----------
-  function startLevel(i) {
-    const L = LEVELS[i];
-    setupGame({ mode: 'level', level: i, rows: L.r });
-  }
-  function startFree(type) {
-    setupGame({ mode: 'free', boardType: type, rows: FREE[type].rows });
-  }
+  function startLevel(i) { setupGame({ mode: 'level', level: i, rows: LEVELS[i].r }); }
+  function startFree(type) { setupGame({ mode: 'free', boardType: type, rows: FREE[type].rows }); }
   function setupGame(cfg, snap) {
     const board = boardFromRows(cfg.rows);
     game = {
@@ -635,12 +577,12 @@ if (typeof importScripts === 'function') {
       $('gameTitle').textContent = 'Freies Spiel';
       $('gameSub').textContent = FREE[cfg.boardType].sub;
       $('statThirdLabel').textContent = 'Beste';
-      $('goalHint').textContent = cfg.boardType === 'eu' ? 'Start oben links, letzte Kugel ins markierte Feld oben rechts.' : 'Letzte Kugel in die Mitte.';
+      $('goalHint').textContent = cfg.boardType === 'eu' ? 'Start oben links · letzte Kugel oben rechts' : 'Letzte Kugel in die Mitte';
     } else {
       $('gameTitle').textContent = 'Level ' + (cfg.level + 1) + ' · ' + LEVELS[cfg.level].n;
       $('gameSub').textContent = WORLDS[LEVELS[cfg.level].w - 1];
       $('statThirdLabel').textContent = 'Sterne';
-      $('goalHint').textContent = 'Letzte Kugel ins gestrichelte Zielfeld.';
+      $('goalHint').textContent = 'Letzte Kugel ins markierte Zielfeld';
     }
     renderBoard();
     setMessage('');
@@ -656,9 +598,9 @@ if (typeof importScripts === 'function') {
   // ---------- rendering ----------
   function layoutCell() {
     const b = game.board;
-    const maxW = Math.min(window.innerWidth - 32, 560);
+    const maxW = Math.min(window.innerWidth - 36, 540);
     const maxH = Math.max(220, window.innerHeight * 0.55);
-    const cell = Math.floor(Math.min(maxW / (b.W + 1), maxH / (b.H + 1), 76));
+    const cell = Math.floor(Math.min(maxW / (b.W + 1), maxH / (b.H + 1), 74));
     document.documentElement.style.setProperty('--cell', cell + 'px');
     boardEl.style.width = (cell * (b.W + 1)) + 'px';
     boardEl.style.height = (cell * (b.H + 1)) + 'px';
@@ -714,10 +656,10 @@ if (typeof importScripts === 'function') {
     $('undoBtn').disabled = game.history.length === 0 || busy;
     if (game.mode === 'free') {
       const b = load('best.' + game.boardType, null);
-      $('statThird').innerHTML = b ? b.left + ' <small>' + (b.left === 1 ? (b.perfect ? FREE[game.boardType].goalLabel + ' 🏆' : 'Kugel') : 'Kugeln') + '</small>' : '–';
+      $('statThird').innerHTML = b ? b.left + ' <small>' + (b.left === 1 ? (b.perfect ? FREE[game.boardType].goalLabel : 'Kugel') : 'Kugeln') + '</small>' : '–';
     } else {
       const s = starsOf(game.level);
-      $('statThird').innerHTML = [1, 2, 3].map(k => '<span class="' + (k <= s ? 'g' : '') + '" style="' + (k <= s ? '' : 'color:rgba(120,110,160,0.25)') + '">★</span>').join('');
+      $('statThird').innerHTML = [1, 2, 3].map(k => '<span class="s' + (k <= s ? '' : ' off') + '">★</span>').join('');
     }
   }
 
@@ -787,23 +729,21 @@ if (typeof importScripts === 'function') {
     game.finished = true; saveGame();
     const left = pegsLeft();
     const onGoal = left === 1 && game.board.goal !== null && game.state[game.board.goal] === 1;
-    const emoji = $('endEmoji'), title = $('endTitle'), text = $('endText');
+    const title = $('endTitle'), text = $('endText');
     const stars = $('bigStars'), legend = $('starLegend');
     const nextBtn = $('endNext');
     if (game.mode === 'level') {
-      const s = (left === 1 ? 1 : 0) + (onGoal ? 1 : 0) + (left === 1 && !game.hintUsed ? 1 : 0);
       const flags = [left === 1, onGoal, left === 1 && !game.hintUsed];
+      const s = flags.filter(Boolean).length;
       stars.hidden = false; legend.hidden = false;
       [...stars.children].forEach((el, k) => el.classList.toggle('on', k < s));
       [...legend.children].forEach((el, k) => el.classList.toggle('on', flags[k]));
       if (s > starsOf(game.level)) { progress[game.level] = s; save('progress', progress); }
-      if (s === 3) { emoji.textContent = '🏆'; title.textContent = 'Perfekt!'; text.textContent = 'Alle drei Sterne. Weiter geht es mit dem nächsten Level.'; }
-      else if (s > 0) { emoji.textContent = '🎉'; title.textContent = 'Gelöst!'; text.textContent = (onGoal ? '' : 'Die letzte Kugel liegt nicht im Zielfeld. ') + (game.hintUsed ? 'Ohne Hinweis gibt es den dritten Stern.' : 'Fürs Zielfeld gibt es noch einen Stern.'); }
-      else { emoji.textContent = '🔮'; title.textContent = 'Keine Züge mehr'; text.textContent = 'Es bleiben ' + left + ' Kugeln übrig. Nimm ein paar Züge zurück oder starte neu.'; }
-      const hasNext = game.level + 1 < LEVELS.length;
-      nextBtn.hidden = !(s > 0 && hasNext);
-      nextBtn.textContent = 'Weiter';
-      if (s > 0) burst(s === 3 ? 220 : 120);
+      if (s === 3) { title.textContent = 'Perfekt'; text.textContent = 'Alle drei Sterne.'; }
+      else if (s > 0) { title.textContent = 'Gelöst'; text.textContent = (onGoal ? '' : 'Die letzte Kugel liegt nicht im Zielfeld. ') + (game.hintUsed ? 'Ohne Hinweis gibt es den dritten Stern.' : 'Fürs Zielfeld gibt es noch einen Stern.'); }
+      else { title.textContent = 'Keine Züge mehr'; text.textContent = 'Es bleiben ' + left + ' Kugeln. Nimm Züge zurück oder starte neu.'; }
+      nextBtn.hidden = !(s > 0 && game.level + 1 < LEVELS.length);
+      if (s > 0) burst(s === 3 ? 140 : 70);
       refreshUI();
     } else {
       stars.hidden = true; legend.hidden = true;
@@ -811,12 +751,12 @@ if (typeof importScripts === 'function') {
       const b = load('best.' + game.boardType, null);
       const better = !b || left < b.left || (left === b.left && perfect && !b.perfect);
       if (better) save('best.' + game.boardType, { left, perfect });
-      if (perfect) { emoji.textContent = '🏆'; title.textContent = 'Perfekt gelöst!'; text.textContent = 'Nur noch eine Kugel, genau im Zielfeld. Besser geht es nicht.'; }
-      else if (left === 1) { emoji.textContent = '🎉'; title.textContent = 'Gelöst!'; text.textContent = 'Nur noch eine Kugel übrig. Für die Königsdisziplin muss sie im Zielfeld liegen.'; }
-      else { emoji.textContent = left <= 3 ? '👏' : '🔮'; title.textContent = 'Keine Züge mehr'; text.textContent = 'Es bleiben ' + left + ' Kugeln übrig. ' + (left <= 3 ? 'Schon sehr nah dran!' : 'Tipp: Räume zuerst die äußeren Arme ab.'); }
-      if (better && left <= 3) text.textContent += ' Neue Bestleistung!';
+      if (perfect) { title.textContent = 'Perfekt'; text.textContent = 'Nur noch eine Kugel, genau im Zielfeld.'; }
+      else if (left === 1) { title.textContent = 'Gelöst'; text.textContent = 'Nur noch eine Kugel. Für die Königsdisziplin muss sie im Zielfeld liegen.'; }
+      else { title.textContent = 'Keine Züge mehr'; text.textContent = 'Es bleiben ' + left + ' Kugeln. ' + (left <= 3 ? 'Sehr nah dran.' : 'Tipp: Räume zuerst die äußeren Arme ab.'); }
+      if (better && left <= 3) text.textContent += ' Neue Bestleistung.';
       nextBtn.hidden = true;
-      if (left === 1) burst(perfect ? 220 : 120);
+      if (left === 1) burst(perfect ? 140 : 70);
       refreshUI();
     }
     showOverlay($('endOverlay'));
@@ -824,24 +764,24 @@ if (typeof importScripts === 'function') {
   const showOverlay = el => el.classList.add('show');
   const hideOverlay = el => el.classList.remove('show');
 
-  // ---------- confetti ----------
+  // ---------- confetti (restrained: ivory and champagne flecks) ----------
   const canvas = $('confetti'), ctx = canvas.getContext('2d');
   let particles = [], raf = null;
   function burst(n) {
     canvas.width = window.innerWidth * devicePixelRatio; canvas.height = window.innerHeight * devicePixelRatio;
     ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-    const colors = ['#7b6cf6', '#f27bb1', '#45c9a5', '#f6b73c', '#8fdcff', '#ffcdf2', '#fff'];
+    const colors = ['#d6bd82', '#ecebe6', '#bfa86a', '#f3e9cf', '#a9a7ad'];
     for (let i = 0; i < n; i++) {
-      const a = Math.random() * Math.PI * 2, sp = 4 + Math.random() * 9;
-      particles.push({ x: window.innerWidth / 2, y: window.innerHeight * 0.38, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 6, w: 6 + Math.random() * 6, h: 4 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, col: colors[Math.floor(Math.random() * colors.length)], life: 1 });
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * 1.6, sp = 5 + Math.random() * 8;
+      particles.push({ x: window.innerWidth / 2, y: window.innerHeight * 0.45, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, w: 3 + Math.random() * 4, h: 2 + Math.random() * 3, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.25, col: colors[Math.floor(Math.random() * colors.length)], life: 1 });
     }
     if (!raf) tick();
   }
   function tick() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     particles.forEach(p => {
-      p.vy += 0.28; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.009;
-      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.5));
+      p.vy += 0.22; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.008;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.4));
       ctx.fillStyle = p.col; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
     });
     particles = particles.filter(p => p.life > 0 && p.y < window.innerHeight + 40);
@@ -873,7 +813,7 @@ if (typeof importScripts === 'function') {
     ensureSolver();
     const id = ++hintSeq;
     $('hintBtn').classList.add('thinking'); $('hintBtn').disabled = true;
-    setMessage('Ich denke nach …');
+    setMessage('Suche eine Lösung …');
     const payload = { id, rows: game.board.maskRows, state: game.state.slice(), goals: goalsForCurrent() };
     if (solverWorker) solverWorker.postMessage(payload);
     else setTimeout(() => onSolverResult(id, solverInline(payload.rows, payload.state, payload.goals)), 30);
@@ -884,10 +824,10 @@ if (typeof importScripts === 'function') {
     if (res.ok) {
       hint = res.path;
       const toGoal = res.endCell === game.board.goal;
-      setMessage('Lösung gefunden: noch ' + res.path.length + (res.path.length === 1 ? ' Zug.' : ' Züge.') + (toGoal ? ' Sie endet im Zielfeld.' : ' Die letzte Kugel landet dabei nicht im Zielfeld.'));
+      setMessage('Lösung gefunden, noch ' + res.path.length + (res.path.length === 1 ? ' Zug.' : ' Züge.') + (toGoal ? '' : ' Die letzte Kugel landet dabei nicht im Zielfeld.'));
       showHint(hint[0]);
     } else if (res.capped) setMessage('Keine Lösung in der Zeit gefunden. Die Stellung ist vermutlich nicht mehr lösbar.');
-    else setMessage('Aus dieser Stellung gibt es keine Lösung mehr. Nimm ein paar Züge zurück.');
+    else setMessage('Aus dieser Stellung gibt es keine Lösung mehr. Nimm Züge zurück.');
   }
   function showHint(m) {
     clearHint();
@@ -932,7 +872,6 @@ if (typeof importScripts === 'function') {
     show('home');
   }
 
-  // ---------- start ----------
   show('home');
 })();
 </script>
