@@ -19,7 +19,8 @@ Live: https://nicolehahn2890.github.io/Solitaire/
 ## Bedienung
 
 - Stein antippen, dann eine markierte Mulde. Eine leere Mulde direkt antippen zieht den passenden Stein hinein, wenn er eindeutig ist. Können mehrere Steine dorthin, leuchten sie auf.
-- Ein Stein, der nicht springen kann, zeigt beim Antippen die Steine, die es können.
+- Ein Stein, der nicht springen kann, wackelt kurz und wird nicht ausgewählt. Eine bestehende Auswahl bleibt dabei erhalten.
+- Züge sind nie gesperrt: Der nächste Stein lässt sich antippen, während der vorherige noch rollt.
 - Zurücknehmen über den runden Button oben rechts (auch Strg+Z), „Neu legen“ startet das Brett neu, „Hinweis“ fragt den Solver.
 - In den ersten drei Levels steht ein Einstiegshinweis unter dem Brett.
 
