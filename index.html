@@ -44,7 +44,7 @@
     --inner-gloss:inset 0 1px 0 rgba(255,255,255,.6);
     --inner-well:inset 0 2px 5px rgba(74,47,26,.34),inset 0 -1px 0 rgba(255,255,255,.22);
     --inner-glass:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(255,255,255,.16);
-    --blur-glass:blur(18px) saturate(115%);--blur-scrim:blur(8px);
+    --blur-glass:blur(14px) saturate(115%);--blur-scrim:blur(8px);
     --glass-fill:rgba(255,255,255,.34);
 
     --radius-sm:6px;--radius-md:12px;--radius-lg:20px;--radius-xl:28px;--radius-slab:36px;--radius-pill:999px;
@@ -117,7 +117,10 @@
   /* wordmark */
   .wordmark { display: flex; flex-direction: column; align-items: center; color: var(--emboss); text-shadow: 0 1px 0 rgba(255,255,255,.55); }
   html[data-theme="onyx"] .wordmark { text-shadow: 0 1px 0 rgba(0,0,0,.4); }
-  .wordmark svg { width: 18px; height: 13px; fill: currentColor; margin-bottom: 3px; }
+  .wordmark svg { width: 30px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; margin-bottom: 4px; overflow: visible; }
+  .wordmark svg .body { fill: color-mix(in srgb, currentColor 22%, transparent); }
+  .wordmark svg .pearl { fill: currentColor; stroke: none; }
+  .wordmark.small svg { width: 24px; height: 18px; }
   .wordmark .rex { font: 300 46px/1 var(--font-display); letter-spacing: .02em; }
   .wordmark .sub { font: 400 14px/1.2 var(--font-display); letter-spacing: var(--tracking-lockup); text-indent: var(--tracking-lockup); margin-top: 4px; }
   .wordmark.small .rex { font-size: 34px; }
@@ -232,11 +235,11 @@
   .board .face::before { content: ''; position: absolute; inset: 0; background: url('assets/wood.jpg') center / 130% no-repeat; opacity: .45; mix-blend-mode: multiply; }
   .board .ring { position: absolute; inset: 14.6%; border-radius: 50%; border: 1px solid rgba(74,47,26,.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.3); pointer-events: none; }
   .tray { position: absolute; inset: 0; pointer-events: none; }
-  .tray .marble { pointer-events: none; transition: left .7s var(--ease-stone), top .7s var(--ease-stone); }
-  .marble.rolling .ball { animation: roll .75s var(--ease-stone); }
+  .tray .marble { pointer-events: none; transform: translate(var(--x), var(--y)); transition: transform .6s var(--ease-stone); }
+  .marble.rolling .ball { animation: roll .6s var(--ease-stone); }
   @keyframes roll { 0% { transform: rotate(0) scale(1); } 35% { transform: rotate(220deg) scale(1.1); } 100% { transform: rotate(560deg) scale(1); } }
   .grid { position: absolute; }
-  .hole, .marble { position: absolute; width: var(--cell); height: var(--cell); left: calc(var(--c) * var(--cell)); top: calc(var(--r) * var(--cell)); display: flex; align-items: center; justify-content: center; }
+  .hole, .marble { position: absolute; width: var(--cell); height: var(--cell); left: 0; top: 0; transform: translate(calc(var(--c) * var(--cell)), calc(var(--r) * var(--cell))); display: flex; align-items: center; justify-content: center; }
   .hole::before { content: ''; width: 62%; height: 62%; border-radius: 50%; background: var(--slot-empty); box-shadow: inset 0 2px 4px rgba(74,47,26,.5), inset 0 -1px 0 rgba(255,255,255,.3); transition: background var(--dur-fast) var(--ease-stone), box-shadow var(--dur-fast) var(--ease-stone); }
   .hole { cursor: pointer; touch-action: manipulation; }
   .marble, .btn, .ibtn, .tile, .seg button, .mcard { touch-action: manipulation; }
@@ -248,23 +251,23 @@
   @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 
   /* marble stones (Peg) */
-  .marble { cursor: pointer; z-index: 2; transition: left var(--dur-slow) var(--ease-stone), top var(--dur-slow) var(--ease-stone); }
+  .marble { cursor: pointer; z-index: 2; will-change: transform; transition: transform .3s var(--ease-stone); }
   .marble .ball {
     width: 84%; height: 84%; border-radius: 50%; position: relative;
     background: radial-gradient(46% 40% at 66% 78%, var(--rim) 0%, transparent 58%), radial-gradient(58% 58% at 36% 30%, var(--core) 0%, var(--body) 46%, var(--deep) 100%);
     box-shadow: var(--shadow-peg), inset 0 0 0 1px var(--ring), inset 0 -3px 6px rgba(0,0,0,.28), inset 0 2px 5px rgba(255,255,255,.45);
     transition: transform var(--dur-fast) var(--ease-lift), box-shadow var(--dur-fast) var(--ease-stone), opacity var(--dur-base);
   }
-  .marble .ball::before { content: ''; position: absolute; left: 20%; top: 12%; width: 30%; height: 22%; border-radius: 50%; background: rgba(255,255,255,.9); filter: blur(.6px); transform: rotate(-24deg); }
+  .marble .ball::before { content: ''; position: absolute; left: 16%; top: 8%; width: 38%; height: 30%; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,.95) 0%, rgba(255,255,255,.7) 45%, rgba(255,255,255,0) 72%); transform: rotate(-24deg); }
   .marble .ball::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(196deg, rgba(255,255,255,.34) 0%, transparent 34%, transparent 68%, rgba(255,255,255,.2) 100%); }
-  .marble .ball i { position: absolute; left: 56%; top: 26%; width: 11%; height: 9%; border-radius: 50%; background: rgba(255,255,255,.55); filter: blur(.5px); }
+  .marble .ball i { position: absolute; left: 54%; top: 24%; width: 15%; height: 13%; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 70%); }
   .marble:hover .ball { transform: translateY(-1px); }
   .marble.selected { z-index: 5; }
   .marble.selected .ball { transform: translateY(-2px) scale(1.06); box-shadow: var(--shadow-peg), 0 0 0 2px var(--slot-selected), inset 0 0 0 1px var(--ring), inset 0 -3px 6px rgba(0,0,0,.3), inset 0 2px 5px rgba(255,255,255,.5); }
   .marble.hint-from .ball { box-shadow: var(--shadow-peg), 0 0 0 2px var(--slot-selected), 0 0 14px rgba(201,168,106,.6), inset 0 0 0 1px var(--ring), inset 0 -3px 6px rgba(0,0,0,.28), inset 0 2px 5px rgba(255,255,255,.45); animation: bob 1.2s var(--ease-stone) infinite; }
   @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
   .marble.jumping { z-index: 6; }
-  .marble.jumping .ball { animation: hop var(--dur-slow) var(--ease-stone); }
+  .marble.jumping .ball { animation: hop .3s var(--ease-stone); }
   @keyframes hop { 0% { transform: translateY(0) scale(1); } 50% { transform: translateY(calc(var(--cell) * -.32)) scale(1.16); } 100% { transform: translateY(0) scale(1); } }
   .marble.captured .ball { transform: scale(.1); opacity: 0; }
   .marble.restore .ball { animation: popIn var(--dur-base) var(--ease-lift); }
@@ -332,7 +335,7 @@
     <div class="frame-head">
       <button class="ibtn chrome left" id="homeSettings" aria-label="Einstellungen"><svg><use href="#i-gear"/></svg></button>
       <button class="ibtn chrome right" id="homeRules" aria-label="Spielregeln"><svg><use href="#i-help"/></svg></button>
-      <div class="wordmark"><svg viewBox="0 0 20 14"><path d="M2 9.2 4.6 6l2.1 2.1L10 3.4l3.3 4.7L15.4 6 18 9.2 16.9 12H3.1z"/></svg><div class="rex">Rex</div><div class="sub">SOLITÄR</div></div>
+      <div class="wordmark"><svg viewBox="0 0 32 24"><path class="body" d="M5 18.5 3.2 8.5l6.3 4.6L16 4.6l6.5 8.5 6.3-4.6L27 18.5z"/><path d="M5 21.5h22"/><circle class="pearl" cx="3.2" cy="7.6" r="1.5"/><circle class="pearl" cx="16" cy="3.4" r="1.6"/><circle class="pearl" cx="28.8" cy="7.6" r="1.5"/></svg><div class="rex">Rex</div><div class="sub">SOLITÄR</div></div>
     </div>
     <div class="frame-body">
       <p class="tagline">Das Steckspiel. Ein Brett, viele Steine, am Ende bleibt einer.</p>
@@ -366,7 +369,7 @@
     <div class="frame-head">
       <button class="ibtn chrome left" id="levelsBack" aria-label="Zurück"><svg><use href="#i-back"/></svg></button>
       <button class="ibtn chrome right" id="levelsRules" aria-label="Spielregeln"><svg><use href="#i-help"/></svg></button>
-      <div class="wordmark small"><svg viewBox="0 0 20 14"><path d="M2 9.2 4.6 6l2.1 2.1L10 3.4l3.3 4.7L15.4 6 18 9.2 16.9 12H3.1z"/></svg><div class="rex">Rex</div><div class="sub">LEVELS</div></div>
+      <div class="wordmark small"><svg viewBox="0 0 32 24"><path class="body" d="M5 18.5 3.2 8.5l6.3 4.6L16 4.6l6.5 8.5 6.3-4.6L27 18.5z"/><path d="M5 21.5h22"/><circle class="pearl" cx="3.2" cy="7.6" r="1.5"/><circle class="pearl" cx="16" cy="3.4" r="1.6"/><circle class="pearl" cx="28.8" cy="7.6" r="1.5"/></svg><div class="rex">Rex</div><div class="sub">LEVELS</div></div>
     </div>
     <div class="frame-body">
       <div style="display:flex;justify-content:center;margin-top:8px"><span class="badge" id="levelsStars"></span></div>
@@ -381,7 +384,7 @@
     <div class="frame-head">
       <button class="ibtn chrome left" id="gameBack" aria-label="Zurück"><svg><use href="#i-back"/></svg></button>
       <button class="ibtn chrome right" id="undoBtn" aria-label="Zurücknehmen" disabled><svg><use href="#i-undo"/></svg></button>
-      <div class="wordmark small"><svg viewBox="0 0 20 14"><path d="M2 9.2 4.6 6l2.1 2.1L10 3.4l3.3 4.7L15.4 6 18 9.2 16.9 12H3.1z"/></svg><div class="rex">Rex</div><div class="sub" id="gameSub">SOLITÄR</div></div>
+      <div class="wordmark small"><svg viewBox="0 0 32 24"><path class="body" d="M5 18.5 3.2 8.5l6.3 4.6L16 4.6l6.5 8.5 6.3-4.6L27 18.5z"/><path d="M5 21.5h22"/><circle class="pearl" cx="3.2" cy="7.6" r="1.5"/><circle class="pearl" cx="16" cy="3.4" r="1.6"/><circle class="pearl" cx="28.8" cy="7.6" r="1.5"/></svg><div class="rex">Rex</div><div class="sub" id="gameSub">SOLITÄR</div></div>
     </div>
     <div class="frame-body">
       <div class="game-top"><span class="badge" id="gameBadge">Level 1</span></div>
@@ -769,7 +772,7 @@ if (typeof importScripts === 'function') {
   function trayStoneEl(stoneIdx, x, y, sz) {
     const m = marbleEl(0, 0, stoneIdx);
     m.style.width = m.style.height = sz + 'px';
-    m.style.left = (x - sz / 2) + 'px'; m.style.top = (y - sz / 2) + 'px';
+    m.style.setProperty('--x', (x - sz / 2) + 'px'); m.style.setProperty('--y', (y - sz / 2) + 'px');
     return m;
   }
   function renderTray() {
@@ -783,8 +786,8 @@ if (typeof importScripts === 'function') {
     const sz = traySize(), a = cellCenter(fromCell), b = trayPos(slot);
     const t = trayStoneEl(colorIdx, a.x, a.y, sz);
     tray.appendChild(t);
-    requestAnimationFrame(() => requestAnimationFrame(() => { t.classList.add('rolling'); t.style.left = (b.x - sz / 2) + 'px'; t.style.top = (b.y - sz / 2) + 'px'; }));
-    setTimeout(() => t.classList.remove('rolling'), 800);
+    requestAnimationFrame(() => requestAnimationFrame(() => { t.classList.add('rolling'); t.style.setProperty('--x', (b.x - sz / 2) + 'px'); t.style.setProperty('--y', (b.y - sz / 2) + 'px'); }));
+    setTimeout(() => t.classList.remove('rolling'), 700);
   }
   // roll the last captured stone back from the trough into its socket
   function rollBack(h, done) {
@@ -792,8 +795,8 @@ if (typeof importScripts === 'function') {
     if (!t || h.slot === undefined || h.slot === null) { done(true); return; }
     const sz = traySize(), p = cellCenter(h.over);
     t.classList.add('rolling');
-    t.style.left = (p.x - sz / 2) + 'px'; t.style.top = (p.y - sz / 2) + 'px';
-    setTimeout(() => { t.remove(); done(false); }, 620);
+    t.style.setProperty('--x', (p.x - sz / 2) + 'px'); t.style.setProperty('--y', (p.y - sz / 2) + 'px');
+    setTimeout(() => { t.remove(); done(false); }, 520);
   }
 
   function marbleEl(r, c, stoneIdx) {
@@ -901,11 +904,11 @@ if (typeof importScripts === 'function') {
     const [r, c] = game.board.cells[to];
     m.classList.add('jumping');
     m.style.setProperty('--r', r); m.style.setProperty('--c', c);
-    setTimeout(() => { if (captured.parentNode) captured.parentNode.removeChild(captured); rollOut(overColor, over, slot); }, 200);
+    setTimeout(() => { if (captured.parentNode) captured.parentNode.removeChild(captured); rollOut(overColor, over, slot); }, 120);
     setTimeout(() => {
       m.classList.remove('jumping');
       busy = false; refreshUI(); saveGame(); checkEnd();
-    }, 440);
+    }, 240);
   }
   function undo() {
     if (!game || busy || game.history.length === 0) return;
@@ -922,7 +925,7 @@ if (typeof importScripts === 'function') {
     m.style.setProperty('--r', r); m.style.setProperty('--c', c);
     busy = true; refreshUI();
     rollBack(h, pop => createMarble(h.over, h.overColor, pop));
-    setTimeout(() => { m.classList.remove('jumping'); busy = false; refreshUI(); saveGame(); }, 660);
+    setTimeout(() => { m.classList.remove('jumping'); busy = false; refreshUI(); saveGame(); }, 540);
     hideOverlay($('endOverlay'));
     setMessage('');
   }
