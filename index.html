@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a1310">
+<title>Solitaire – Das klassische Steckspiel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1310;
+    --bg2: #2a1e17;
+    --cream: #f1e6d3;
+    --cream-dim: #c9b79c;
+    --gold: #d9a53c;
+    --gold-soft: #f2cf7a;
+    --panel: rgba(255, 245, 225, 0.06);
+    --panel-border: rgba(255, 235, 200, 0.12);
+    --board-size: min(94vw, 62vh, 560px);
+    --cell: calc(var(--board-size) / 8);
+    --sans: 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: var(--sans);
+    color: var(--cream);
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -10%, #3d2b21 0%, transparent 60%),
+      radial-gradient(ellipse 80% 60% at 50% 110%, #0d0907 0%, transparent 70%),
+      linear-gradient(180deg, #21181372 0%, transparent 100%),
+      var(--bg);
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: max(14px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ---------- Header ---------- */
+  header { text-align: center; margin: 6px 0 10px; }
+  header h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(34px, 6vw, 46px);
+    letter-spacing: 0.08em;
+    margin: 0;
+    line-height: 1.05;
+    color: var(--cream);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  }
+  header h1 span { color: var(--gold); }
+  header p {
+    margin: 4px 0 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    color: var(--cream-dim);
+    letter-spacing: 0.04em;
+  }
+
+  /* ---------- Board switch ---------- */
+  .switch {
+    display: inline-flex;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    padding: 3px;
+    margin-bottom: 12px;
+  }
+  .switch button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--cream-dim);
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    padding: 7px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .switch button.active {
+    background: linear-gradient(180deg, #e9bc57, #c6912b);
+    color: #2b1d0e;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  /* ---------- Stats ---------- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: var(--board-size);
+    max-width: 560px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 8px 6px;
+    text-align: center;
+  }
+  .stat .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--cream-dim);
+  }
+  .stat .value {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--cream);
+    margin-top: 2px;
+  }
+  .stat .value small { font-size: 13px; font-family: var(--sans); font-weight: 600; color: var(--gold-soft); }
+
+  /* ---------- Board ---------- */
+  .board-wrap {
+    position: relative;
+    width: var(--board-size);
+    height: var(--board-size);
+    margin-bottom: 16px;
+  }
+  .board {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 38% 32%, rgba(255, 225, 170, 0.22) 0%, transparent 42%),
+      repeating-radial-gradient(circle at 46% 44%, rgba(70, 38, 14, 0) 0px, rgba(70, 38, 14, 0) 9px, rgba(60, 30, 10, 0.20) 11px, rgba(60, 30, 10, 0) 15px),
+      repeating-linear-gradient(97deg, rgba(255, 210, 150, 0.06) 0px, rgba(255, 210, 150, 0.06) 2px, transparent 2px, transparent 7px),
+      radial-gradient(circle at 50% 50%, #a86d38 0%, #8c5527 45%, #6d3f1b 80%, #532d12 100%);
+    box-shadow:
+      inset 0 0 0 calc(var(--cell) * 0.11) rgba(70, 40, 15, 0.55),
+      inset 0 0 0 calc(var(--cell) * 0.13) rgba(255, 210, 150, 0.12),
+      inset 0 calc(var(--cell) * 0.08) calc(var(--cell) * 0.3) rgba(255, 220, 170, 0.18),
+      inset 0 calc(var(--cell) * -0.12) calc(var(--cell) * 0.35) rgba(30, 12, 0, 0.55),
+      0 calc(var(--cell) * 0.35) calc(var(--cell) * 0.7) rgba(0, 0, 0, 0.6),
+      0 calc(var(--cell) * 0.08) calc(var(--cell) * 0.16) rgba(0, 0, 0, 0.5);
+  }
+  .board::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--cell) * 0.16);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 220, 170, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(60, 30, 10, 0.4);
+    pointer-events: none;
+  }
+  .grid {
+    position: absolute;
+    left: calc(var(--cell) * 0.5);
+    top: calc(var(--cell) * 0.5);
+    width: calc(var(--cell) * 7);
+    height: calc(var(--cell) * 7);
+  }
+  .hole, .marble {
+    position: absolute;
+    width: var(--cell);
+    height: var(--cell);
+    left: calc(var(--c) * var(--cell));
+    top: calc(var(--r) * var(--cell));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hole::before {
+    content: '';
+    width: 58%;
+    height: 58%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, #3a2110 0%, #2a1609 55%, #1c0e05 100%);
+    box-shadow:
+      inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(0, 0, 0, 0.8),
+      inset 0 calc(var(--cell) * -0.02) calc(var(--cell) * 0.04) rgba(255, 200, 140, 0.18),
+      0 1px 0 rgba(255, 220, 170, 0.18);
+    transition: box-shadow 0.25s, transform 0.25s;
+  }
+  .hole { cursor: default; }
+  .hole.goal::after {
+    content: '';
+    position: absolute;
+    width: 74%;
+    height: 74%;
+    border-radius: 50%;
+    border: 2px dashed rgba(242, 207, 122, 0.55);
+    pointer-events: none;
+  }
+  .hole.target { cursor: pointer; }
+  .hole.target::before {
+    box-shadow:
+      inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(0, 0, 0, 0.8),
+      0 0 0 3px rgba(242, 207, 122, 0.85),
+      0 0 calc(var(--cell) * 0.3) rgba(242, 207, 122, 0.6);
+    animation: pulseTarget 1.1s ease-in-out infinite;
+  }
+  .hole.hint-to::before {
+    box-shadow:
+      inset 0 calc(var(--cell) * 0.05) calc(var(--cell) * 0.08) rgba(0, 0, 0, 0.8),
+      0 0 0 3px rgba(120, 220, 255, 0.9),
+      0 0 calc(var(--cell) * 0.35) rgba(120, 220, 255, 0.7);
+    animation: pulseTarget 1s ease-in-out infinite;
+  }
+  @keyframes pulseTarget {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  /* ---------- Marbles ---------- */
+  .marble {
+    cursor: pointer;
+    transition: left 0.38s cubic-bezier(0.4, 0, 0.2, 1), top 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+  }
+  .marble .ball {
+    width: 74%;
+    height: 74%;
+    border-radius: 50%;
+    position: relative;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.55) 8%, rgba(255, 255, 255, 0) 30%),
+      radial-gradient(circle at 70% 78%, var(--m3) 0%, rgba(255, 255, 255, 0) 45%),
+      radial-gradient(circle at 50% 50%, var(--m1) 0%, var(--m2) 60%, var(--m3) 100%);
+    box-shadow:
+      inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0, 0, 0, 0.45),
+      inset calc(var(--cell) * 0.02) calc(var(--cell) * 0.03) calc(var(--cell) * 0.06) rgba(255, 255, 255, 0.35),
+      0 calc(var(--cell) * 0.06) calc(var(--cell) * 0.08) rgba(0, 0, 0, 0.55),
+      0 calc(var(--cell) * 0.02) calc(var(--cell) * 0.02) rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
+  }
+  .marble .ball::before {
+    content: '';
+    position: absolute;
+    left: 20%;
+    top: 12%;
+    width: 30%;
+    height: 20%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%);
+    transform: rotate(-25deg);
+  }
+  .marble .ball::after {
+    content: '';
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 6%;
+    height: 22%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 70%);
+  }
+  .marble:hover .ball { transform: translateY(-2px); }
+  .marble.selected { z-index: 5; }
+  .marble.selected .ball {
+    transform: translateY(calc(var(--cell) * -0.08)) scale(1.12);
+    box-shadow:
+      inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0, 0, 0, 0.45),
+      inset calc(var(--cell) * 0.02) calc(var(--cell) * 0.03) calc(var(--cell) * 0.06) rgba(255, 255, 255, 0.35),
+      0 0 0 3px rgba(242, 207, 122, 0.9),
+      0 calc(var(--cell) * 0.16) calc(var(--cell) * 0.2) rgba(0, 0, 0, 0.6);
+  }
+  .marble.hint-from .ball {
+    box-shadow:
+      inset calc(var(--cell) * -0.04) calc(var(--cell) * -0.06) calc(var(--cell) * 0.1) rgba(0, 0, 0, 0.45),
+      0 0 0 3px rgba(120, 220, 255, 0.9),
+      0 0 calc(var(--cell) * 0.35) rgba(120, 220, 255, 0.7),
+      0 calc(var(--cell) * 0.06) calc(var(--cell) * 0.08) rgba(0, 0, 0, 0.55);
+    animation: hintBob 1s ease-in-out infinite;
+  }
+  @keyframes hintBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(calc(var(--cell) * -0.1)); }
+  }
+  .marble.jumping { z-index: 6; }
+  .marble.jumping .ball { animation: hop 0.38s cubic-bezier(0.4, 0, 0.2, 1); }
+  @keyframes hop {
+    0% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(calc(var(--cell) * -0.35)) scale(1.22); box-shadow: 0 calc(var(--cell) * 0.4) calc(var(--cell) * 0.35) rgba(0, 0, 0, 0.5); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  .marble.captured .ball { transform: scale(0.1); opacity: 0; }
+  .marble.restore .ball { animation: popIn 0.3s ease-out; }
+  @keyframes popIn {
+    0% { transform: scale(0.1); opacity: 0; }
+    70% { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .marble.movable::after {
+    content: '';
+    position: absolute;
+    width: 12%;
+    height: 12%;
+    border-radius: 50%;
+    bottom: 6%;
+    background: rgba(242, 207, 122, 0.0);
+  }
+
+  /* ---------- Controls ---------- */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: var(--board-size);
+    max-width: 560px;
+  }
+  .btn {
+    appearance: none;
+    border: 1px solid rgba(255, 220, 170, 0.22);
+    background: linear-gradient(180deg, rgba(255, 245, 225, 0.10), rgba(255, 245, 225, 0.04));
+    color: var(--cream);
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    padding: 11px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.1s, opacity 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 120px;
+  }
+  .btn:hover { background: linear-gradient(180deg, rgba(255, 245, 225, 0.16), rgba(255, 245, 225, 0.07)); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.primary {
+    background: linear-gradient(180deg, #e9bc57, #c6912b);
+    color: #2b1d0e;
+    border-color: #f2cf7a;
+  }
+  .btn.primary:hover { background: linear-gradient(180deg, #f2c964, #d19a30); }
+  .btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .btn.thinking svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .msg {
+    min-height: 22px;
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--cream-dim);
+    text-align: center;
+    font-style: italic;
+    font-family: var(--serif);
+    font-size: 17px;
+    transition: opacity 0.3s;
+  }
+
+  .help-btn {
+    position: absolute;
+    top: max(12px, env(safe-area-inset-top));
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--cream-dim);
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .help-btn:hover { color: var(--cream); }
+
+  /* ---------- Overlay / Modal ---------- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 5, 3, 0.72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+  .modal {
+    width: min(92vw, 420px);
+    background: linear-gradient(180deg, #2f221a, #1f1611);
+    border: 1px solid rgba(255, 220, 170, 0.2);
+    border-radius: 20px;
+    padding: 26px 24px 22px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    transform: translateY(12px);
+    transition: transform 0.25s;
+  }
+  .overlay.show .modal { transform: translateY(0); }
+  .modal .emoji { font-size: 44px; line-height: 1; margin-bottom: 8px; }
+  .modal h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 30px;
+    margin: 0 0 8px;
+    color: var(--cream);
+  }
+  .modal p { margin: 0 0 18px; color: var(--cream-dim); font-size: 15px; line-height: 1.5; }
+  .modal .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .modal.rules { text-align: left; }
+  .modal.rules h2 { text-align: center; }
+  .modal.rules ul { padding-left: 20px; margin: 0 0 16px; color: var(--cream-dim); font-size: 14.5px; line-height: 1.55; }
+  .modal.rules li { margin-bottom: 6px; }
+  .modal.rules li b { color: var(--cream); font-weight: 700; }
+  .modal.rules .row { justify-content: center; }
+
+  @media (max-height: 700px) and (orientation: landscape) {
+    :root { --board-size: min(94vw, 70vh, 560px); }
+    header { margin: 0 0 6px; }
+    header p { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="help-btn" id="helpBtn" title="Spielregeln" aria-label="Spielregeln">?</button>
+
+<header>
+  <h1>SOLI<span>T</span>AIRE</h1>
+  <p>Das klassische Steckspiel mit Glaskugeln</p>
+</header>
+
+<div class="switch" role="tablist" aria-label="Brettform">
+  <button id="btnEn" class="active" role="tab">Englisch · 33</button>
+  <button id="btnEu" role="tab">Europäisch · 37</button>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="label">Züge</div><div class="value" id="statMoves">0</div></div>
+  <div class="stat"><div class="label">Kugeln</div><div class="value" id="statLeft">32</div></div>
+  <div class="stat"><div class="label">Beste</div><div class="value" id="statBest">–</div></div>
+</div>
+
+<div class="board-wrap">
+  <div class="board"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="controls">
+  <button class="btn" id="undoBtn" disabled>
+    <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
+    Rückgängig
+  </button>
+  <button class="btn" id="hintBtn">
+    <svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>
+    Hinweis
+  </button>
+  <button class="btn primary" id="restartBtn">
+    <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+    Neustart
+  </button>
+</div>
+
+<div class="msg" id="msg"></div>
+
+<div class="overlay" id="endOverlay">
+  <div class="modal">
+    <div class="emoji" id="endEmoji">🏆</div>
+    <h2 id="endTitle">Perfekt!</h2>
+    <p id="endText"></p>
+    <div class="row">
+      <button class="btn" id="endUndo">Zurück</button>
+      <button class="btn primary" id="endRestart">Neues Spiel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="rulesOverlay">
+  <div class="modal rules">
+    <h2>Spielregeln</h2>
+    <ul>
+      <li><b>Ziel:</b> Am Ende soll nur noch eine Kugel übrig sein. Liegt sie genau in der Mitte, ist es perfekt gelöst.</li>
+      <li><b>Zug:</b> Tippe eine Kugel an, dann eine leuchtende Mulde. Die Kugel springt waagerecht oder senkrecht über eine Nachbarkugel in die freie Mulde dahinter.</li>
+      <li><b>Schlagen:</b> Die übersprungene Kugel wird vom Brett genommen.</li>
+      <li><b>Ende:</b> Das Spiel endet, wenn kein Sprung mehr möglich ist.</li>
+      <li><b>Hinweis:</b> Der Solver sucht eine vollständige Lösung aus der aktuellen Stellung und zeigt den nächsten Zug. Nicht jede Stellung ist noch lösbar.</li>
+      <li><b>Europäisch:</b> Das 37er-Brett ist mit leerer Mitte nachweislich nicht lösbar. Deshalb startet es klassisch mit einer freien Mulde oben links im Arm, und die letzte Kugel soll im gestrichelt markierten Feld oben rechts landen.</li>
+    </ul>
+    <div class="row"><button class="btn primary" id="rulesClose">Verstanden</button></div>
+  </div>
+</div>
+
+<!-- Solver source: runs inside a Web Worker (or inline as fallback) -->
+<script id="solverSrc" type="text/plain">
+function buildBoard(type) {
+  var cells = [], idx = {};
+  for (var r = 0; r < 7; r++) for (var c = 0; c < 7; c++) {
+    var mid = (r >= 2 && r <= 4) || (c >= 2 && c <= 4);
+    var diag = type === 'eu' && ((r === 1 || r === 5) && (c === 1 || c === 5));
+    if (mid || diag) { idx[r * 7 + c] = cells.length; cells.push([r, c]); }
+  }
+  var at = function (r, c) { return (r < 0 || r > 6 || c < 0 || c > 6) ? undefined : idx[r * 7 + c]; };
+  var moves = [];
+  var dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+  cells.forEach(function (rc, i) {
+    var r = rc[0], c = rc[1];
+    for (var d = 0; d < 4; d++) {
+      var dr = dirs[d][0], dc = dirs[d][1];
+      var o = at(r + dr, c + dc), t = at(r + 2 * dr, c + 2 * dc);
+      if (o !== undefined && t !== undefined) moves.push([i, o, t]);
+    }
+  });
+  var dist = function (i) { return Math.abs(cells[i][0] - 3) + Math.abs(cells[i][1] - 3); };
+  var sortedMoves = moves.slice().sort(function (a, b) { return dist(b[0]) - dist(a[0]); });
+  var tf = [
+    function (r, c) { return [r, c]; }, function (r, c) { return [c, 6 - r]; },
+    function (r, c) { return [6 - r, 6 - c]; }, function (r, c) { return [6 - c, r]; },
+    function (r, c) { return [r, 6 - c]; }, function (r, c) { return [6 - r, c]; },
+    function (r, c) { return [c, r]; }, function (r, c) { return [6 - c, 6 - r]; }
+  ];
+  var symInv = tf.map(function (f) {
+    var inv = new Array(cells.length);
+    cells.forEach(function (rc, i) { var ab = f(rc[0], rc[1]); inv[idx[ab[0] * 7 + ab[1]]] = i; });
+    return inv;
+  });
+  var pow = []; var pw = 1; for (var i = 0; i < cells.length; i++) { pow.push(pw); pw *= 2; }
+  return { type: type, cells: cells, idx: idx, moves: moves, sortedMoves: sortedMoves, symInv: symInv, pow: pow };
+}
+
+function solveBoard(board, startState, goal, cap) {
+  var pow = board.pow, cells = board.cells;
+  // move ordering: pegs far away from the goal (or the centre) move first
+  var ref = goal === null ? [3, 3] : cells[goal];
+  var dist = function (i) { return Math.abs(cells[i][0] - ref[0]) + Math.abs(cells[i][1] - ref[1]); };
+  var moves = board.moves.slice().sort(function (a, b) { return dist(b[0]) - dist(a[0]); });
+  // only symmetries that keep the goal cell fixed are valid for the dead-state memo
+  var symInv = goal === null ? board.symInv : board.symInv.filter(function (inv) { return inv[goal] === goal; });
+  var N = startState.length;
+  var state = new Uint8Array(startState);
+  var S = symInv.length;
+  var keys = new Float64Array(S);
+  for (var s = 0; s < S; s++) { var k0 = 0; for (var j = 0; j < N; j++) if (state[j]) k0 += pow[symInv[s][j]]; keys[s] = k0; }
+  var dead = new Set();
+  var nodes = 0, capped = false;
+  var path = [];
+  function toggle(j, sign) { for (var s = 0; s < S; s++) keys[s] += sign * pow[symInv[s][j]]; }
+  function dfs(count) {
+    if (count === 1) return goal === null ? true : state[goal] === 1;
+    if (++nodes > cap) { capped = true; return false; }
+    var k = keys[0]; for (var s = 1; s < S; s++) if (keys[s] < k) k = keys[s];
+    if (dead.has(k)) return false;
+    for (var mi = 0; mi < moves.length; mi++) {
+      var m = moves[mi];
+      if (state[m[0]] && state[m[1]] && !state[m[2]]) {
+        state[m[0]] = 0; state[m[1]] = 0; state[m[2]] = 1;
+        toggle(m[0], -1); toggle(m[1], -1); toggle(m[2], 1);
+        path.push(m);
+        if (dfs(count - 1)) return true;
+        path.pop();
+        toggle(m[0], 1); toggle(m[1], 1); toggle(m[2], -1);
+        state[m[0]] = 1; state[m[1]] = 1; state[m[2]] = 0;
+      }
+    }
+    if (!capped) dead.add(k);
+    return false;
+  }
+  var count = 0; for (var j2 = 0; j2 < N; j2++) count += state[j2];
+  var ok = dfs(count);
+  return { ok: ok, path: path, nodes: nodes, capped: capped };
+}
+
+// Try each goal in order ({goal, cap}); goal null = any single peg
+function findSolution(type, state, goals) {
+  var board = buildBoard(type);
+  var anyCapped = false;
+  for (var g = 0; g < goals.length; g++) {
+    var res = solveBoard(board, state, goals[g].goal, goals[g].cap);
+    if (res.ok) return { ok: true, path: res.path, endCell: res.path[res.path.length - 1][2] };
+    if (res.capped) anyCapped = true;
+  }
+  return { ok: false, capped: anyCapped };
+}
+
+if (typeof importScripts === 'function') {
+  self.onmessage = function (e) {
+    var d = e.data;
+    var res = findSolution(d.type, d.state, d.goals);
+    self.postMessage({ id: d.id, result: res });
+  };
+}
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Board definitions ----------
+  // startHole: empty cell at the start. goalCell: where the last marble should end ("perfect").
+  // goals: finish cells the solver tries in order (null = any single marble).
+  // The European board cannot be solved from an empty centre, so it uses the classic
+  // problem "vacate top-left of the arm, finish top-right" instead.
+  var BOARDS = {
+    en: { name: 'Englisch', startHole: [3, 3], goalCell: [3, 3], goals: [{ cell: [3, 3], cap: 2500000 }, { cell: null, cap: 2500000 }], goalLabel: 'Mitte' },
+    eu: { name: 'Europäisch', startHole: [0, 2], goalCell: [0, 4], goals: [{ cell: [0, 4], cap: 1500000 }, { cell: null, cap: 3000000 }], goalLabel: 'Ziel' }
+  };
+  var PALETTE = [
+    { m1: '#7fd3ff', m2: '#1d7fc9', m3: '#0a3c78' },   // cobalt blue
+    { m1: '#9df7c3', m2: '#1fa66a', m3: '#0b4a2f' },   // emerald
+    { m1: '#ffd27a', m2: '#e88b1c', m3: '#7a3d05' },   // amber
+    { m1: '#ff9aa8', m2: '#d8283f', m3: '#6b0d1c' },   // ruby
+    { m1: '#b8f0ff', m2: '#2fb8c9', m3: '#0c4f5c' },   // aqua
+    { m1: '#dcb8ff', m2: '#8a4bd1', m3: '#3d1a6b' },   // violet
+    { m1: '#ffffff', m2: '#c5d3dd', m3: '#6f8290' },   // clear glass
+    { m1: '#ffc7f0', m2: '#e05aa8', m3: '#7a1f57' }    // pink
+  ];
+
+  // ---------- State ----------
+  var boardType = 'en';
+  var board = null;        // {cells, idx, moves}
+  var state = [];          // 1 = marble, 0 = empty per cell index
+  var history = [];        // {from, over, to, overColor}
+  var colors = [];         // color index per cell (moves with marbles)
+  var selected = null;
+  var busy = false;
+  var hint = null;         // cached solution path from current position
+  var pendingHint = null;
+  var solverWorker = null;
+  var solverInline = null;
+  var hintSeq = 0;
+
+  // ---------- DOM ----------
+  var grid = document.getElementById('grid');
+  var statMoves = document.getElementById('statMoves');
+  var statLeft = document.getElementById('statLeft');
+  var statBest = document.getElementById('statBest');
+  var msg = document.getElementById('msg');
+  var undoBtn = document.getElementById('undoBtn');
+  var hintBtn = document.getElementById('hintBtn');
+  var restartBtn = document.getElementById('restartBtn');
+  var btnEn = document.getElementById('btnEn');
+  var btnEu = document.getElementById('btnEu');
+  var endOverlay = document.getElementById('endOverlay');
+  var rulesOverlay = document.getElementById('rulesOverlay');
+  var holes = [];
+  var marbles = [];
+
+  // ---------- Board geometry ----------
+  function buildBoardGeometry(type) {
+    var cells = [], idx = {};
+    for (var r = 0; r < 7; r++) for (var c = 0; c < 7; c++) {
+      var mid = (r >= 2 && r <= 4) || (c >= 2 && c <= 4);
+      var diag = type === 'eu' && ((r === 1 || r === 5) && (c === 1 || c === 5));
+      if (mid || diag) { idx[r * 7 + c] = cells.length; cells.push([r, c]); }
+    }
+    var at = function (r, c) { return (r < 0 || r > 6 || c < 0 || c > 6) ? undefined : idx[r * 7 + c]; };
+    var moves = [];
+    var dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+    cells.forEach(function (rc, i) {
+      for (var d = 0; d < 4; d++) {
+        var o = at(rc[0] + dirs[d][0], rc[1] + dirs[d][1]);
+        var t = at(rc[0] + 2 * dirs[d][0], rc[1] + 2 * dirs[d][1]);
+        if (o !== undefined && t !== undefined) moves.push({ from: i, over: o, to: t });
+      }
+    });
+    var gc = BOARDS[type].goalCell;
+    return { cells: cells, idx: idx, moves: moves, center: idx[3 * 7 + 3], goal: idx[gc[0] * 7 + gc[1]] };
+  }
+
+  // ---------- Persistence ----------
+  function loadJSON(key) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function saveJSON(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* ignore */ } }
+  function saveGame() {
+    saveJSON('solitaire.game', { type: boardType, state: state, history: history, colors: colors });
+  }
+  function bestKey() { return 'solitaire.best.' + boardType; }
+  function renderBest() {
+    var b = loadJSON(bestKey());
+    if (!b) { statBest.textContent = '–'; return; }
+    statBest.innerHTML = b.left + ' <small>' + (b.left === 1 ? (b.perfect ? BOARDS[boardType].goalLabel + ' 🏆' : 'Kugel') : 'Kugeln') + '</small>';
+  }
+  function updateBest(left, perfect) {
+    var b = loadJSON(bestKey());
+    var better = !b || left < b.left || (left === b.left && perfect && !b.perfect);
+    if (better) { saveJSON(bestKey(), { left: left, perfect: perfect, date: Date.now() }); renderBest(); return true; }
+    return false;
+  }
+
+  // ---------- Rendering ----------
+  function renderBoard() {
+    grid.innerHTML = '';
+    holes = []; marbles = [];
+    board.cells.forEach(function (rc, i) {
+      var h = document.createElement('div');
+      h.className = 'hole';
+      h.style.setProperty('--r', rc[0]);
+      h.style.setProperty('--c', rc[1]);
+      h.dataset.i = i;
+      if (i === board.goal && boardType === 'eu') h.classList.add('goal');
+      h.addEventListener('click', function () { onHoleClick(i); });
+      grid.appendChild(h);
+      holes.push(h);
+      marbles.push(null);
+    });
+    board.cells.forEach(function (rc, i) {
+      if (state[i]) createMarble(i, colors[i], false);
+    });
+    refreshUI();
+  }
+
+  function createMarble(i, colorIdx, pop) {
+    var m = document.createElement('div');
+    m.className = 'marble' + (pop ? ' restore' : '');
+    var rc = board.cells[i];
+    m.style.setProperty('--r', rc[0]);
+    m.style.setProperty('--c', rc[1]);
+    var col = PALETTE[colorIdx];
+    m.style.setProperty('--m1', col.m1);
+    m.style.setProperty('--m2', col.m2);
+    m.style.setProperty('--m3', col.m3);
+    var ball = document.createElement('div');
+    ball.className = 'ball';
+    m.appendChild(ball);
+    m.dataset.i = i;
+    m.addEventListener('click', function (e) { e.stopPropagation(); onMarbleClick(parseInt(m.dataset.i, 10)); });
+    grid.appendChild(m);
+    marbles[i] = m;
+    if (pop) setTimeout(function () { m.classList.remove('restore'); }, 320);
+    return m;
+  }
+
+  function legalMoves() {
+    return board.moves.filter(function (m) { return state[m.from] && state[m.over] && !state[m.to]; });
+  }
+  function movesFrom(i) {
+    return legalMoves().filter(function (m) { return m.from === i; });
+  }
+
+  function clearHighlights() {
+    holes.forEach(function (h) { h.classList.remove('target'); });
+    marbles.forEach(function (m) { if (m) m.classList.remove('selected'); });
+  }
+  function clearHint() {
+    holes.forEach(function (h) { h.classList.remove('hint-to'); });
+    marbles.forEach(function (m) { if (m) m.classList.remove('hint-from'); });
+  }
+
+  function select(i) {
+    clearHighlights();
+    selected = i;
+    marbles[i].classList.add('selected');
+    movesFrom(i).forEach(function (m) { holes[m.to].classList.add('target'); });
+  }
+  function deselect() {
+    selected = null;
+    clearHighlights();
+  }
+
+  function setMessage(text) { msg.textContent = text || ''; }
+
+  function refreshUI() {
+    var left = state.reduce(function (a, b) { return a + b; }, 0);
+    statMoves.textContent = history.length;
+    statLeft.textContent = left;
+    undoBtn.disabled = history.length === 0 || busy;
+    renderBest();
+  }
+
+  // ---------- Game actions ----------
+  function onMarbleClick(i) {
+    if (busy) return;
+    // keep the hint visible while the hinted marble itself is being selected
+    if (!(hint && hint.length && hint[0][0] === i && selected !== i)) clearHint();
+    if (selected === i) { deselect(); return; }
+    if (selected !== null) {
+      // clicking another marble: reselect (no jumping onto marbles)
+      select(i);
+      return;
+    }
+    if (movesFrom(i).length === 0) {
+      select(i);
+      setMessage('Diese Kugel kann gerade nicht springen.');
+      return;
+    }
+    setMessage('');
+    select(i);
+  }
+
+  function onHoleClick(i) {
+    if (busy || selected === null) return;
+    var mv = movesFrom(selected).filter(function (m) { return m.to === i; })[0];
+    if (!mv) return;
+    clearHint();
+    doMove(mv, true);
+  }
+
+  function doMove(mv, animate) {
+    var from = mv.from, over = mv.over, to = mv.to;
+    var m = marbles[from];
+    var captured = marbles[over];
+    var overColor = colors[over];
+
+    // state update
+    state[from] = 0; state[over] = 0; state[to] = 1;
+    colors[to] = colors[from]; colors[from] = -1; colors[over] = -1;
+    history.push({ from: from, over: over, to: to, overColor: overColor });
+    marbles[from] = null; marbles[over] = null; marbles[to] = m;
+    m.dataset.i = to;
+
+    // keep hint cache if the player followed it
+    if (hint && hint.length && hint[0][0] === from && hint[0][1] === over && hint[0][2] === to) hint.shift();
+    else hint = null;
+
+    deselect();
+    setMessage('');
+    busy = true;
+    refreshUI();
+
+    var rc = board.cells[to];
+    m.classList.add('jumping');
+    m.style.setProperty('--r', rc[0]);
+    m.style.setProperty('--c', rc[1]);
+    setTimeout(function () { captured.classList.add('captured'); }, animate ? 170 : 0);
+    setTimeout(function () {
+      m.classList.remove('jumping');
+      if (captured.parentNode) captured.parentNode.removeChild(captured);
+      busy = false;
+      refreshUI();
+      saveGame();
+      checkEnd();
+    }, animate ? 400 : 0);
+  }
+
+  function undo() {
+    if (busy || history.length === 0) return;
+    var h = history.pop();
+    clearHint();
+    deselect();
+    hint = null;
+    var m = marbles[h.to];
+    state[h.to] = 0; state[h.from] = 1; state[h.over] = 1;
+    colors[h.from] = colors[h.to]; colors[h.to] = -1; colors[h.over] = h.overColor;
+    marbles[h.to] = null; marbles[h.from] = m;
+    m.dataset.i = h.from;
+    var rc = board.cells[h.from];
+    m.classList.add('jumping');
+    m.style.setProperty('--r', rc[0]);
+    m.style.setProperty('--c', rc[1]);
+    createMarble(h.over, h.overColor, true);
+    busy = true;
+    refreshUI();
+    setTimeout(function () { m.classList.remove('jumping'); busy = false; refreshUI(); saveGame(); }, 400);
+    hideOverlay(endOverlay);
+    setMessage('');
+  }
+
+  function newGame(type) {
+    boardType = type;
+    board = buildBoardGeometry(type);
+    state = board.cells.map(function () { return 1; });
+    var sh = BOARDS[type].startHole;
+    state[board.idx[sh[0] * 7 + sh[1]]] = 0;
+    colors = board.cells.map(function () { return Math.floor(Math.random() * PALETTE.length); });
+    history = [];
+    selected = null;
+    hint = null;
+    busy = false;
+    btnEn.classList.toggle('active', type === 'en');
+    btnEu.classList.toggle('active', type === 'eu');
+    renderBoard();
+    setMessage(type === 'eu' ? 'Europäisches Brett: Start oben links, die letzte Kugel soll ins markierte Feld oben rechts.' : '');
+    hideOverlay(endOverlay);
+    saveGame();
+  }
+
+  function restoreGame(saved) {
+    boardType = saved.type;
+    board = buildBoardGeometry(boardType);
+    if (!saved.state || saved.state.length !== board.cells.length) return false;
+    state = saved.state.slice();
+    colors = saved.colors && saved.colors.length === board.cells.length ? saved.colors.slice() : board.cells.map(function () { return Math.floor(Math.random() * PALETTE.length); });
+    history = saved.history || [];
+    selected = null; hint = null; busy = false;
+    btnEn.classList.toggle('active', boardType === 'en');
+    btnEu.classList.toggle('active', boardType === 'eu');
+    renderBoard();
+    return true;
+  }
+
+  // ---------- End of game ----------
+  function checkEnd() {
+    if (legalMoves().length > 0) return;
+    var left = state.reduce(function (a, b) { return a + b; }, 0);
+    var perfect = left === 1 && state[board.goal] === 1;
+    var isRecord = updateBest(left, perfect);
+    var emoji = document.getElementById('endEmoji');
+    var title = document.getElementById('endTitle');
+    var text = document.getElementById('endText');
+    if (perfect) {
+      emoji.textContent = '🏆';
+      title.textContent = 'Perfekt gelöst!';
+      text.textContent = boardType === 'eu'
+        ? 'Nur noch eine Kugel, und die liegt genau im markierten Zielfeld. Besser geht es nicht.'
+        : 'Nur noch eine Kugel, und die liegt genau in der Mitte. Besser geht es nicht.';
+    } else if (left === 1) {
+      emoji.textContent = '🎉';
+      title.textContent = 'Gelöst!';
+      text.textContent = boardType === 'eu'
+        ? 'Nur noch eine Kugel übrig. Für die Königsdisziplin muss sie am Ende im markierten Zielfeld liegen.'
+        : 'Nur noch eine Kugel übrig. Für die Königsdisziplin muss sie am Ende in der Mitte liegen.';
+    } else {
+      emoji.textContent = left <= 3 ? '👏' : '🔮';
+      title.textContent = 'Keine Züge mehr';
+      text.textContent = 'Es bleiben ' + left + ' Kugeln übrig. ' + (left <= 3 ? 'Schon sehr nah dran!' : 'Tipp: Räume zuerst die äußeren Arme ab und halte die Mitte beweglich.');
+    }
+    if (isRecord && (left <= 3)) text.textContent += ' Neue Bestleistung!';
+    showOverlay(endOverlay);
+  }
+
+  function showOverlay(el) { el.classList.add('show'); }
+  function hideOverlay(el) { el.classList.remove('show'); }
+
+  // ---------- Hint / solver ----------
+  function getSolverSource() { return document.getElementById('solverSrc').textContent; }
+  function ensureSolver() {
+    if (solverWorker || solverInline) return;
+    try {
+      var blob = new Blob([getSolverSource()], { type: 'application/javascript' });
+      solverWorker = new Worker(URL.createObjectURL(blob));
+      solverWorker.onmessage = function (e) { onSolverResult(e.data.id, e.data.result); };
+      solverWorker.onerror = function () { solverWorker = null; };
+    } catch (e) {
+      solverWorker = null;
+    }
+    if (!solverWorker) {
+      var fn = new Function(getSolverSource() + '\nreturn findSolution;');
+      solverInline = fn();
+    }
+  }
+
+  function goalsForCurrent() {
+    return BOARDS[boardType].goals.map(function (g) {
+      return { goal: g.cell === null ? null : board.idx[g.cell[0] * 7 + g.cell[1]], cap: g.cap };
+    });
+  }
+
+  function requestHint() {
+    if (busy) return;
+    clearHint();
+    deselect();
+    if (legalMoves().length === 0) { setMessage('Kein Zug mehr möglich.'); return; }
+    if (hint && hint.length) { showHint(hint[0]); return; }
+    ensureSolver();
+    var id = ++hintSeq;
+    hintBtn.classList.add('thinking');
+    hintBtn.disabled = true;
+    setMessage('Ich denke nach …');
+    var payload = { id: id, type: boardType, state: state.slice(), goals: goalsForCurrent() };
+    if (solverWorker) {
+      solverWorker.postMessage(payload);
+    } else {
+      setTimeout(function () { onSolverResult(id, solverInline(payload.type, payload.state, payload.goals)); }, 30);
+    }
+  }
+
+  function onSolverResult(id, res) {
+    if (id !== hintSeq) return;
+    hintBtn.classList.remove('thinking');
+    hintBtn.disabled = false;
+    if (res.ok) {
+      hint = res.path;
+      var where = boardType === 'eu' ? 'im Zielfeld' : 'in der Mitte';
+      var goalTxt = res.endCell === board.goal ? ' Sie führt bis zur letzten Kugel ' + where + '.' : ' Die letzte Kugel landet dabei nicht ' + where + '.';
+      setMessage('Lösung gefunden: noch ' + res.path.length + ' Züge.' + goalTxt);
+      showHint(hint[0]);
+    } else if (res.capped) {
+      setMessage('Keine Lösung in der Zeit gefunden. Die Stellung ist vermutlich nicht mehr lösbar.');
+    } else {
+      setMessage('Aus dieser Stellung gibt es keine Lösung mehr. Nimm ein paar Züge zurück.');
+    }
+  }
+
+  function showHint(m) {
+    clearHint();
+    if (!marbles[m[0]] || state[m[2]]) { hint = null; return; }
+    marbles[m[0]].classList.add('hint-from');
+    holes[m[2]].classList.add('hint-to');
+  }
+
+  // ---------- Wiring ----------
+  undoBtn.addEventListener('click', undo);
+  hintBtn.addEventListener('click', requestHint);
+  restartBtn.addEventListener('click', function () { newGame(boardType); });
+  btnEn.addEventListener('click', function () { if (boardType !== 'en') newGame('en'); });
+  btnEu.addEventListener('click', function () { if (boardType !== 'eu') newGame('eu'); });
+  document.getElementById('endRestart').addEventListener('click', function () { newGame(boardType); });
+  document.getElementById('endUndo').addEventListener('click', undo);
+  document.getElementById('helpBtn').addEventListener('click', function () { showOverlay(rulesOverlay); });
+  document.getElementById('rulesClose').addEventListener('click', function () { hideOverlay(rulesOverlay); });
+  rulesOverlay.addEventListener('click', function (e) { if (e.target === rulesOverlay) hideOverlay(rulesOverlay); });
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && !e.target.closest('.grid') && !e.target.closest('.btn')) { if (!busy) deselect(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'z' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); undo(); }
+    if (e.key === 'Escape') { deselect(); clearHint(); hideOverlay(rulesOverlay); }
+  });
+
+  // ---------- Start ----------
+  var saved = loadJSON('solitaire.game');
+  if (!(saved && BOARDS[saved.type] && restoreGame(saved))) newGame('en');
+  if (saved && history.length > 0) { setTimeout(checkEnd, 300); }
+})();
+</script>
+</body>
+</html>
