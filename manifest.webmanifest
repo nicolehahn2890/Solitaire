@@ -1,0 +1,17 @@
+{
+  "name": "Rex Solitär",
+  "short_name": "Rex",
+  "description": "Das klassische Steckspiel mit Steinen auf einem gedrechselten Holzbrett.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#cfdad2",
+  "theme_color": "#a4b7ae",
+  "lang": "de",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
